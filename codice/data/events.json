@@ -1,0 +1,32 @@
+[
+	{
+		"_id": "event1",
+		"user_id": "user1",
+		"device_id": "device1",
+		"type": "device_added",
+		"timestamp": "2021-08-10T14:54:35.676Z",
+	},
+	{
+		"_id": "event2",
+		"user_id": "user1",
+		"device_id": "device2",
+		"type": "device_added",
+		"timestamp": "2021-08-10T14:54:35.676Z",
+	},
+	{
+		"_id": "event3",
+		"user_id": "user3",
+		"device_id": "device3",
+		"type": "request",
+		"timestamp": "2021-08-10T14:54:35.676Z",
+		"transaction_id": "transaction1",
+		"coordinates": {
+			"latitude": 0.0,
+			"longitude": 0.0
+		},
+		"location": "Via Verdi, 15",
+		"extra_info": {
+			"richiedente": "giovanni s.p.a."
+		}
+	}
+]

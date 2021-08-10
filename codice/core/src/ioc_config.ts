@@ -11,7 +11,14 @@ import { ConfirmationRoute } from './routes/confirmations/confirmation.route';
 import {Service} from './services/service';
 import {TokenConverter} from './services/token-converter/token-converter';
 
-import {DeviceRepository, Metadata, MetadataRepository, MongoDeviceRepository, MongoMetadataRepository, RedisMetadataRepository} from 'repositories';
+import {
+    DeviceRepository,
+    MetadataRepository,
+    MongoDeviceRepository,
+    MongoMetadataRepository,
+    EventRepository,
+    MongoEventRepository
+} from 'repositories';
 
 
 import {TYPES} from 'repositories';
@@ -27,6 +34,7 @@ container.bind<Route>(coreTYPES.ConfirmationRoute).to(ConfirmationRoute);
 
 container.bind<MetadataRepository>(TYPES.MetadataRepository).to(MongoMetadataRepository);
 container.bind<DeviceRepository>(TYPES.DeviceRepository).to(MongoDeviceRepository);
+container.bind<EventRepository>(TYPES.EventRepository).to(MongoEventRepository);
 
 container.bind<UUIDGenerator>(UUIDGenerator).to(UUIDGenerator);
 

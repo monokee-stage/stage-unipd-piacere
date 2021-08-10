@@ -13,4 +13,8 @@ export { Device } from './devices/model/device';
 export { DeviceRepository } from './devices/repository/device.repository';
 export { MongoDeviceRepository } from './devices/repository/mongo.device.repository';
 
+export { Event} from './events/model/event';
+export { EventRepository} from './events/repository/event.repository';
+export { MongoEventRepository } from './events/repository/mongo.event.repository';
+
 export {TYPES} from './types';

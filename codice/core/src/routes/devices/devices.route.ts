@@ -4,22 +4,20 @@ import {Route} from '../route';
 import {Router, Request, Response, NextFunction} from 'express';
 import {inject, injectable} from 'inversify';
 
-import {Service} from '../../services/service';
-import {TokenConverter} from '../../services/token-converter/token-converter'
-
 import {DeviceRepository,
-		MongoDeviceRepository,
-		Device} from 'repositories';
+		Device,
+		EventRepository,
+		Event} from 'repositories';
 
 import {container} from '../../ioc_config';
 import {TYPES} from 'repositories';
 import { UUIDGenerator } from '../../services/uuid-generator/uuid-generator';
-import { isThisTypeNode } from 'typescript';
 
 @injectable()
 export class DevicesRoute extends Route{
 	constructor(
 		@inject(TYPES.DeviceRepository) private deviceRepo: DeviceRepository,
+		@inject(TYPES.EventRepository) private eventRepo: EventRepository,
 		@inject(UUIDGenerator) private uuidGen: UUIDGenerator) {
 		super();
 		this.basePath = '/user/:user_id';
@@ -30,8 +28,8 @@ export class DevicesRoute extends Route{
 		this.router.patch(this.basePath + '/device/:device_id', this.editDevice);
 		this.router.post(this.basePath + '/device', this.addDevice);
 		this.router.delete(this.basePath + '/device/:device_id', this.removeDevice);
-		// this.router.get(this.basePath + '/logs', this.getUserLogs);
-		// this.router.get(this.basePath + '/device/:device_id/logs', this.getDeviceLogs);
+		this.router.get(this.basePath + '/logs', this.getUserLogs);
+		this.router.get(this.basePath + '/device/:device_id/logs', this.getDeviceLogs);
 	}
 
 	// the methods below should permit to edit/update/delete only the devices of the user specified in the query
@@ -85,10 +83,15 @@ export class DevicesRoute extends Route{
 	};
 
 	private getUserLogs = async (req: Request, res: Response, next: NextFunction) => {
-
+		var user_id = req.params.user_id
+		var events: Event[] = await this.eventRepo.getUserEvents(user_id)
+		res.json(events)
 	};
 
 	private getDeviceLogs = async (req: Request, res: Response, next: NextFunction) => {
-		
+		var user_id = req.params.user_id
+		var device_id = req.params.device_id
+		var events: Event[] = await this.eventRepo.getDeviceEvents(device_id, user_id)
+		res.json(events)
 	};
 }
