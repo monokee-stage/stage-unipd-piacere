@@ -10,7 +10,8 @@ export class MongoMetadataRepository implements MetadataRepository {
     private metadata: any;
 
     constructor(){
-        this.client = new MongoClient(process.env.METADATA_MONGODB_URI || '')
+        this.client = new MongoClient(process.env.METADATA_MONGODB_URI || '');
+        this.client.connect();
         var db = this.client.db(process.env.METADATA_MONGODB_DB_NAME);
         this.metadata = db.collection(process.env.METADATA_MONGODB_COLLECTION_NAME || '')
     }

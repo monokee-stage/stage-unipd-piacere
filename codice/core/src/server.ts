@@ -21,6 +21,8 @@ export default class Server {
 		this.app = express();
 		this.port = app_init.port;
 		this.host = app_init.host;
+
+		this.app.use(express.json());
 	}
 
 	listen() {

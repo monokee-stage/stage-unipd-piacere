@@ -10,23 +10,19 @@ import { container } from '../../ioc_config';
 
 @injectable()
 export class MetadataRoute extends Route {
+	 
 
-	
-	private metadataRepo: MetadataRepository;
-
-	constructor() {
-		super();
+	constructor(@inject(TYPES.MetadataRepository) private metadataRepo: MetadataRepository) {
+		super()
 		this.basePath = '/metadata/:domain_id';
 		this.router = Router();
 		this.router.get(this.basePath, this.metadata);
-
-		this.metadataRepo = container.get<MetadataRepository>(TYPES.MetadataRepository);
 	}
 
-	private async metadata(req: Request, res: Response, next: NextFunction) {
+	private metadata = async (req: Request, res: Response, next: NextFunction) => {
 		var id: string = req.params.domain_id;
 		// res.send('temp');
 		var met = await this.metadataRepo.getMetadata(id);
-		res.json(met);
+		res.json({metadata_url: met.metadata_url});
 	}
 }

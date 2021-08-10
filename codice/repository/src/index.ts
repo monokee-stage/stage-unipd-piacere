@@ -9,7 +9,7 @@ export { TransactionModel } from './transactions/model/transaction.model';
 export { TransactionRepository } from './transactions/repository/transaction.repository';
 export { RedisTransactionRepository } from './transactions/repository/redis.transaction.repository';
 
-export { Device } from './devices/model/device.model';
+export { Device } from './devices/model/device';
 export { DeviceRepository } from './devices/repository/device.repository';
 export { MongoDeviceRepository } from './devices/repository/mongo.device.repository';
 

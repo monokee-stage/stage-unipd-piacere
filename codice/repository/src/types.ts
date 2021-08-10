@@ -1,5 +1,8 @@
 const TYPES: { [key: string]: symbol } = {
-    MetadataRepository: Symbol.for('MetadataRepository')
+    MetadataRepository: Symbol.for('MetadataRepository'),
+    DeviceRepository: Symbol.for('DevicesRepository'),
+    TransactionRepository: Symbol.for('TransactionsRepository'),
+    EventRepository: Symbol.for('EventsRepository'),
   }
   
   export { TYPES }

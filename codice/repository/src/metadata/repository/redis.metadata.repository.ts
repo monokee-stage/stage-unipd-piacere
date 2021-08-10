@@ -28,16 +28,14 @@ export class RedisMetadataRepository implements MetadataRepository{
 		var result = await this.redis.get(domain_id);
 		console.log(`domain_id: ${domain_id}`);
 		if(result == undefined){
+			/*
 			var met: Metadata = {
 				_id: '0',
 				url: 'none'
-			} 
+			} */
+			return new Metadata()
 		}else{
-			var met: Metadata = {
-				_id: '0',
-				url: 'yes'
-			}
+			return new Metadata()
 		}
-		return met;
 	}
 }

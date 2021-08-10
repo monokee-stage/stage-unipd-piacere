@@ -36,25 +36,28 @@ import {container} from "./ioc_config";
 import Server from './server'
 import { RequestsRoute } from './routes/requests/requests.route';
 import { ConfirmationRoute } from './routes/confirmations/confirmation.route';
+import { coreTYPES } from './types';
+
+import express from 'express';
 
 console.log('start');
 
 var server = new Server({port: 3001,host: 'localhost'})
 
-var route1: Route = container.get<Route>(MetadataRoute);
-var route2: Route = container.get<Route>(DevicesRoute);
-var route3: Route = container.get<Route>(RequestsRoute);
-var route4: Route = container.get<Route>(ConfirmationRoute);
+var route1: Route = container.get<Route>(coreTYPES.MetadataRoute);
+var route2: Route = container.get<Route>(coreTYPES.DevicesRoute);
+var route3: Route = container.get<Route>(coreTYPES.RequestsRoute);
+var route4: Route = container.get<Route>(coreTYPES.ConfirmationRoute);
 
 
 
 
 server.loadRoute(route1);
 
-server.loadMiddleware(checkToken);
+/*server.loadMiddleware(checkToken);*/
 
 server.loadRoute(route2);
-server.loadRoute(route3);
-server.loadRoute(route4);
+/*server.loadRoute(route3);
+server.loadRoute(route4);*/
 
 server.listen();
