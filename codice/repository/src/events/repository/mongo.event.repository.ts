@@ -34,6 +34,7 @@ export class MongoEventRepository implements EventRepository {
     }
     addEvent(event: Event): Promise<void> {
         return new Promise<void> (async (resolve, reject) => {
+            await this.events.insertOne(event)
             return resolve()
         });
     }

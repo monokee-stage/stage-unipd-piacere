@@ -28,6 +28,7 @@ import {
 
 import {TYPES} from 'repositories';
 import { coreTYPES } from './types';
+import { Notifier } from './services/notifier/notifier';
 
 
 export const container: Container = new Container();
@@ -36,6 +37,7 @@ container.bind<UUIDGenerator>(UUIDGenerator).to(UUIDGenerator);
 container.bind<RandomCodeGenerator>(RandomCodeGenerator).to(RandomCodeGenerator);
 container.bind<TokenConverter>(TokenConverter).to(TokenConverter);
 container.bind<Hasher>(Hasher).toConstantValue(new Hasher());
+container.bind<Notifier>(Notifier).toConstantValue(new Notifier());
 
 container.bind<MetadataRepository>(TYPES.MetadataRepository).to(MongoMetadataRepository);
 container.bind<DeviceRepository>(TYPES.DeviceRepository).to(MongoDeviceRepository);

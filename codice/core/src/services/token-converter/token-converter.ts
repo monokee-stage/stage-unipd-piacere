@@ -15,7 +15,6 @@ export class TokenConverter implements Service{
 			var authstring = metadata.core.client_id + ':' + metadata.core.client_secret
 			var based = Buffer.from(authstring).toString('base64')
 			// var auth = 'Basic WnRZUTNWRkgyeXlLTHNjTDpBV1JESExjdzRtTmVKNzJa';
-			var postBodyData = 'token=6cf99568-0d15-49d2-ba85-592883206eeb&token_type_hint=access_token';
 			return axios({
 				method: 'post',
 				url: metadata.introspection_endpoint,
