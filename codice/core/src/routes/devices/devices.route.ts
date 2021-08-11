@@ -58,7 +58,7 @@ export class DevicesRoute extends Route{
 
 	private updateDevice = async (req: Request, res: Response, next: NextFunction) => {
 		var device: Device = req.body;
-		// it's important to take the next two values from the request params because those values are verified in the preceding middlewares
+		// it's important to take the next two values from the request params, and not from the device object, because those two values are verified in the preceding middlewares
 		var id = req.params._id;
 		var user_id = req.params.user_id;
 		await this.deviceRepo.editDevice(id, user_id, device);

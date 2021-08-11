@@ -1,8 +1,12 @@
-import { TransactionModel } from "../..";
+import { Transaction } from "../model/transaction.model";
 import { TransactionRepository } from "./transaction.repository";
 
 import Redis from 'ioredis';
+import { unstringifyNestedFileds } from "../../utils/unstringifyNestedFields";
+import { stringifyNestedFields } from "../../utils/stringifyNestedFields";
+import { injectable } from "inversify";
 
+@injectable()
 export class RedisTransactionRepository implements TransactionRepository {
 
     private redis: Redis.Redis
@@ -11,8 +15,12 @@ export class RedisTransactionRepository implements TransactionRepository {
 		this.redis = new Redis();
 	}
 
-    public addTransaction(transaction: TransactionModel): Promise<void> {
-        throw new Error("Method not implemented.");
+    public addTransaction(transaction: Transaction): Promise<void> {
+        return new Promise<void> (async(resolve, reject) => {
+            var obj = stringifyNestedFields(transaction)
+            await this.redis.hset(transaction._id, obj)
+            return resolve()
+        })
     }
     public approveTransaction(transaction_id: string): Promise<void> {
         return new Promise<void> (async(resolve, reject) => {
@@ -24,26 +32,21 @@ export class RedisTransactionRepository implements TransactionRepository {
             this.redis.hset(transaction_id, 'status','denyied');
         })
     }
-    public getTransaction(transaction_id: string): Promise<TransactionModel> {
-        return new Promise<TransactionModel> (async(resolve, reject) => {
-            var data = new TransactionModel();
+    // should check that both the promises found a value. If not that means that the transaction expired before at least one of the transactions
+    // for security I should check that the transaction obtained was requested from the user that is asking the information now. Or maybe this this check should be done in the route
+    public getTransaction(transaction_id: string): Promise<Transaction> {
+        return new Promise<Transaction> (async(resolve, reject) => {
+            var p1 = this.redis.hgetall(transaction_id)
+            var p2 = this.redis.ttl(transaction_id)
+            var res = await Promise.all([p1,p2])
 
-            var promise1 = this.redis.hgetall(transaction_id).then(result => {
-                console.log(result);
-                data.transaction_id = result.transaction_id;
-                data.user_id = result.user_id;
-                data.requester_id = result.requester_id;
-                data.request_timestamp = result.request_timestamp;
-                data.status = result.status;
-            });
+            console.log(res[0])
+            var transaction: Transaction = unstringifyNestedFileds(res[0])
+            var ttl = res[1]
 
-            var promise2 = this.redis.ttl(transaction_id).then(result => {
-                data.ttl = result;
-            })
-
-            Promise.all([promise1, promise2]).then(() => {
-                return resolve(data);
-            })
+            transaction._id = transaction_id
+            transaction.ttl = ttl
+            return resolve(transaction)
         })
     }
     

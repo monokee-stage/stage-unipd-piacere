@@ -29,8 +29,8 @@ server.loadRoute(route1);
 /*server.loadMiddleware(checkToken);*/
 
 server.loadRoute(route2);
-/*server.loadRoute(route3);
-server.loadRoute(route4);*/
+server.loadRoute(route3);
+/*server.loadRoute(route4);*/
 
 server.loadMiddleware(errorHandlerMiddleware);
 

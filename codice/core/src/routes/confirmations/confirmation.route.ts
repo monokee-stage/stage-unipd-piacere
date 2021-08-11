@@ -2,7 +2,7 @@ import 'reflect-metadata';
 
 import {Route} from '../route';
 import {Router, Request, Response, NextFunction} from 'express';
-import {TransactionModel, RedisTransactionRepository} from 'repositories';
+import {Transaction, RedisTransactionRepository} from 'repositories';
 
 import {injectable, inject} from 'inversify';
 

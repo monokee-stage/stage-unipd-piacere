@@ -42,8 +42,6 @@ export class MongoDeviceRepository implements DeviceRepository {
     }
     public editDevice(device_id: string, user_id: string, device: Device): Promise<void> {
         return new Promise<void> (async (resolve, reject) => {
-            var devs = await this.devices.find({_id: device_id}).toArray();
-            console.log(device)
             var result = await this.devices.updateOne({_id: device_id}, {$set: device})
             console.log(result)
             return resolve()
