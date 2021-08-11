@@ -1,44 +1,16 @@
 
 import {
-	Repository,
-	Metadata,
-	MetadataRepository,
-	RedisMetadataRepository,
-	TransactionModel,
-	TransactionRepository,
-	RedisTransactionRepository,
-	MongoDeviceRepository
-} from 'repositories';
-
-import {
-	MetadataRoute
-} from './routes/metadata/metadata.route';
-
-import {DevicesRoute} from './routes/devices/devices.route';
-
-import {checkToken} from './middleware/checkToken';
-
-import {
 	Route
 } from './routes/route';
-
-import {
-	GeoConverter
-} from './services/geo-converter/geo-converter';
-import {
-	OSMGeoConverter
-} from './services/geo-converter/osm-geo-converter';
 
 import dotenv from 'dotenv';
 dotenv.config();
 
 import {container} from "./ioc_config";
 import Server from './server'
-import { RequestsRoute } from './routes/requests/requests.route';
-import { ConfirmationRoute } from './routes/confirmations/confirmation.route';
 import { coreTYPES } from './types';
 
-import express from 'express';
+import { errorHandlerMiddleware } from './middleware/errorHandlerMiddleware';
 
 console.log('start');
 
@@ -59,5 +31,7 @@ server.loadRoute(route1);
 server.loadRoute(route2);
 /*server.loadRoute(route3);
 server.loadRoute(route4);*/
+
+server.loadMiddleware(errorHandlerMiddleware);
 
 server.listen();

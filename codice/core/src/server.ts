@@ -1,13 +1,5 @@
 import express, {Express} from 'express';
-import { Router, Request, Response, NextFunction } from 'express';
 import {Route} from './routes/route';
-
-import {
-	Repository,
-	Metadata,
-	MetadataRepository,
-	RedisMetadataRepository
-} from 'repositories';
 
 export default class Server {
 	app: Express
@@ -22,6 +14,7 @@ export default class Server {
 		this.port = app_init.port;
 		this.host = app_init.host;
 
+		// reads the json data of the requests and puts it in the req.body object
 		this.app.use(express.json());
 	}
 
@@ -36,6 +29,7 @@ export default class Server {
 		this.app.use('/', route.router);
 	}
 
+	// to be expanded by adding a url and a method parameter
 	loadMiddleware(middleware: any){
 		this.app.use(middleware);
 	}
