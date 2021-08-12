@@ -170,7 +170,11 @@ export class RequestsRoute extends Route {
 		if(Object.keys(trans).length === 0){
 			return res.json({error: 'No transaction with that id'});	
 		}
-		return res.json({status: trans.status});
-
+		// verify if the one who is asking for the status is the same that issued the request
+		if(trans.requester_id === req.params.user_id){
+			return res.json({status: trans.status});
+		}else{
+			return res.json({error: 'You are not the issuer of this request'})
+		}
 	};
 }
