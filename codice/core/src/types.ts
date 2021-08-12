@@ -7,6 +7,8 @@ const coreTYPES: { [key: string]: symbol } = {
     DevicesRoute: Symbol.for('DevicesRoute'),
     RequestsRoute: Symbol.for('RequestsRoute'),
     ConfirmationRoute: Symbol.for('ConfirmationRoute'),
+    
+    GeoConverter: Symbol.for('GeoConverter')
   }
   
   export { coreTYPES }

@@ -18,7 +18,11 @@ export class RedisTransactionRepository implements TransactionRepository {
     public addTransaction(transaction: Transaction): Promise<void> {
         return new Promise<void> (async(resolve, reject) => {
             var obj = stringifyNestedFields(transaction)
+            var ttl = obj.ttl
+            delete obj.ttl
+            delete obj._id
             await this.redis.hset(transaction._id, obj)
+            await this.redis.expire(transaction._id, ttl as unknown as number)
             return resolve()
         })
     }
@@ -38,14 +42,14 @@ export class RedisTransactionRepository implements TransactionRepository {
         return new Promise<Transaction> (async(resolve, reject) => {
             var p1 = this.redis.hgetall(transaction_id)
             var p2 = this.redis.ttl(transaction_id)
-            var res = await Promise.all([p1,p2])
+            var results = await Promise.all([p1,p2])
 
-            console.log(res[0])
-            var transaction: Transaction = unstringifyNestedFileds(res[0])
-            var ttl = res[1]
-
-            transaction._id = transaction_id
-            transaction.ttl = ttl
+            var transaction: Transaction = unstringifyNestedFileds(results[0])
+            var ttl = results[1]
+            if(ttl !== -2){
+                transaction._id = transaction_id
+                transaction.ttl = ttl
+            }
             return resolve(transaction)
         })
     }

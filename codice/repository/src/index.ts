@@ -17,4 +17,6 @@ export { Event} from './events/model/event';
 export { EventRepository} from './events/repository/event.repository';
 export { MongoEventRepository } from './events/repository/mongo.event.repository';
 
+export {stringifyNestedFields} from './utils/stringifyNestedFields';
+
 export {TYPES} from './types';

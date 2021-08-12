@@ -1,9 +1,14 @@
+
+// maybe a timestamp would be useful
 export class NotificationData{
-    [key: string]: string
     transaction_id!: string
     confirmation_code!: string
-    location!: string
-    lat!: string
-    long!: string
+    location?: string
+    coordinates?: {
+        lat: string
+        long: string
+    }
+    extra_info?: {
+        [key: string]: string | number
+    }
 }
-// + extra_info!: any

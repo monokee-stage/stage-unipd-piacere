@@ -2,7 +2,7 @@ import {Service} from '../service';
 
 
 export interface GeoConverter extends Service {
-	public getPlaceFromCoordinates(lat: float, lon: float): any;
+	getPlaceFromCoordinates(lat: number, lon: number): Promise<string>;
 }
 
 /*
