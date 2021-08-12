@@ -163,6 +163,7 @@ export class RequestsRoute extends Route {
 		})
 	};
 
+	// maybe I should check the device of the requester with a certificate (private, public key)
 	private getStatus = async (req: Request, res: Response, next: NextFunction) => {
 		var trans_id: string = req.params.operation_id;
 		var repo = new RedisTransactionRepository();

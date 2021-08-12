@@ -1,7 +1,7 @@
 
 export class TokenData{
     active!: boolean
-    scope!: string[]
+    scopes!: string[]
     client_id!: string
     token_type!: string
     exp!: number
