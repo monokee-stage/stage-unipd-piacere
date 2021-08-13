@@ -1,3 +1,3 @@
 export interface Decryptor {
-    decrypt(enc_text: string): string
+    decrypt(enc_text: string, encoding: string): string
 }

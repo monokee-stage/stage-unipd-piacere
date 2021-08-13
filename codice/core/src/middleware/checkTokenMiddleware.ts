@@ -4,15 +4,17 @@ import { checkScopes } from "../utils/check-scope";
 export const checkTokenMiddleware = async(req: Request, res: Response, next: NextFunction) => {
     var metadata = res.locals.metadata
     var tokenData = res.locals.tokenData
-    var owned_scopes = ['get_devices'] // tokenData.scopes
 
-    var are_scopes_correct = checkScopes(req.url, req.method, owned_scopes)
+    // next three lines are just for development and just while I don't have a valid token
+    tokenData.scopes = ['get_devices']
+    tokenData.active = true
+    tokenData.sub = req.params.user_id
+    
 
-    if(
-        /*tokenData
-        && tokenData.active == true
-        && tokenData.sub == req.params.user_id
-        && */are_scopes_correct) {
+    var are_scopes_correct = checkScopes(req.url, req.method, tokenData.scopes)
+
+    if(tokenData && tokenData.active == true && tokenData.sub == req.params.user_id && are_scopes_correct) {
+        console.log('token check passed')
         return next()
     }else{
         if(!tokenData){
@@ -25,5 +27,4 @@ export const checkTokenMiddleware = async(req: Request, res: Response, next: Nex
             return res.status(401).json({error: 'Scopes not correct'})
         }
     }
-
 }

@@ -31,6 +31,8 @@ import { coreTYPES } from './types';
 import { Notifier } from './services/notifier/notifier';
 import { GeoConverter } from './services/geo-converter/geo-converter';
 import { OSMGeoConverter } from './services/geo-converter/osm-geo-converter';
+import { Decryptor } from './services/decryptor/decryptor';
+import { AESDecryptor} from './services/decryptor/aes-decryptor/aes-decryptor';
 
 
 export const container: Container = new Container();
@@ -41,6 +43,7 @@ container.bind<TokenConverter>(TokenConverter).to(TokenConverter);
 container.bind<Hasher>(Hasher).toConstantValue(new Hasher());
 container.bind<Notifier>(Notifier).toConstantValue(new Notifier());
 container.bind<GeoConverter>(coreTYPES.GeoConverter).toConstantValue(new OSMGeoConverter());
+container.bind<Decryptor>(AESDecryptor).toConstantValue(new AESDecryptor())
 
 container.bind<MetadataRepository>(TYPES.MetadataRepository).to(MongoMetadataRepository);
 container.bind<DeviceRepository>(TYPES.DeviceRepository).to(MongoDeviceRepository);

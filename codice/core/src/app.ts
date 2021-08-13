@@ -12,6 +12,8 @@ import { coreTYPES } from './types';
 
 import { errorHandlerMiddleware } from './middleware/errorHandlerMiddleware';
 import { checkTokenMiddleware } from './middleware/checkTokenMiddleware';
+import { getMetadataMiddleware } from './middleware/getMetadataMiddleware';
+import { getTokenDataMiddleware } from './middleware/getTokenDataMiddleware';
 
 console.log('start');
 
@@ -27,6 +29,8 @@ var route4: Route = container.get<Route>(coreTYPES.ConfirmationRoute);
 
 server.loadRoute(route1);
 
+server.loadMiddleware(getMetadataMiddleware);
+server.loadMiddleware(getTokenDataMiddleware);
 server.loadMiddleware(checkTokenMiddleware);
 
 server.loadRoute(route2);
