@@ -6,8 +6,11 @@ import { container } from "../ioc_config";
 export const getMetadataMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     var metadataRepo = container.get<MetadataRepository>(TYPES.MetadataRepository)
     var domain_id = req.query.domain_id as string
+    if(!domain_id) {
+        return res.json({error: 'Domain_id not provided'})
+    }
     var metadata = await metadataRepo.getMetadata(domain_id)
     // should check if metadata was retrieved correctly
     res.locals.metadata = metadata
-    next()
+    return next()
 }

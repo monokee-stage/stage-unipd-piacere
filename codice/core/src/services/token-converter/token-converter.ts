@@ -20,7 +20,6 @@ export class TokenConverter implements Service{
 	public getTokenData(token: string, metadata: Metadata): Promise<TokenData> {
 		return new Promise<TokenData>( async (resolve, reject) => {
 			try {
-				// in reality the client_secret will be AES encrypted
 				var enc_secret = metadata.core.client_secret
 				var dec_secret = this.aesDecryptor.decrypt(enc_secret, 'base64')
 				console.log(dec_secret)

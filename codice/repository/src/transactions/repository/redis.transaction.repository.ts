@@ -29,11 +29,13 @@ export class RedisTransactionRepository implements TransactionRepository {
     public approveTransaction(transaction_id: string): Promise<void> {
         return new Promise<void> (async(resolve, reject) => {
             this.redis.hset(transaction_id, 'status','approved');
+            return resolve()
         })
     }
     public refuseTransaction(transaction_id: string): Promise<void> {
         return new Promise<void> (async(resolve, reject) => {
-            this.redis.hset(transaction_id, 'status','denyied');
+            this.redis.hset(transaction_id, 'status','denied');
+            return resolve()
         })
     }
     // should check that both the promises found a value. If not that means that the transaction expired before at least one of the transactions

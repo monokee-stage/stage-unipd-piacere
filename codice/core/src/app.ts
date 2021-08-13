@@ -19,24 +19,25 @@ console.log('start');
 
 var server = new Server({port: 3001,host: 'localhost'})
 
-var route1: Route = container.get<Route>(coreTYPES.MetadataRoute);
-var route2: Route = container.get<Route>(coreTYPES.DevicesRoute);
-var route3: Route = container.get<Route>(coreTYPES.RequestsRoute);
-var route4: Route = container.get<Route>(coreTYPES.ConfirmationRoute);
+var metadataRoute: Route = container.get<Route>(coreTYPES.MetadataRoute);
+var deviceRoute: Route = container.get<Route>(coreTYPES.DevicesRoute);
+var requestRoute: Route = container.get<Route>(coreTYPES.RequestsRoute);
+var confirmationRoute: Route = container.get<Route>(coreTYPES.ConfirmationRoute);
 
 
 
 
-server.loadRoute(route1);
+server.loadRoute(metadataRoute);
 
 server.loadMiddleware(getMetadataMiddleware);
 server.loadMiddleware(getTokenDataMiddleware);
 server.loadMiddleware(checkTokenMiddleware);
 
-server.loadRoute(route2);
-server.loadRoute(route3);
-/*server.loadRoute(route4);*/
+server.loadRoute(deviceRoute);
+server.loadRoute(requestRoute);
+server.loadRoute(confirmationRoute);
 
 server.loadMiddleware(errorHandlerMiddleware);
+
 
 server.listen();
