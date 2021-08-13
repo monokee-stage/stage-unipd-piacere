@@ -2,7 +2,11 @@ import 'reflect-metadata';
 
 import {Route} from '../route';
 import {Router, Request, Response, NextFunction} from 'express';
-import {Transaction, RedisTransactionRepository, TYPES, TransactionRepository, EventRepository, DeviceRepository} from 'repositories';
+import {
+    Transaction, TransactionRepository,
+    Event, EventRepository,
+    DeviceRepository} from 'repositories';
+import {TYPES} from 'repositories';
 
 import {injectable, inject} from 'inversify';
 import { RSADecryptor } from '../../services/decryptor/rsa-decryptor/rsa-decryptor';
@@ -32,9 +36,19 @@ export class ConfirmationRoute extends Route {
         let signed_conf_code: string = req.query.signed_conf_code as string
         let target_id: string = req.query.target_id as string
         let check = await this.checkSignatureAndTime(target_id, trans_id, device_id, signed_conf_code)
+
         if(check){
-            // save the event
-            this.transRepo.approveTransaction(trans_id)
+            let uuid = this.uuidGen.getUUID()
+            let event: Event = {
+                _id: uuid,
+                user_id: target_id,
+                device_id: device_id,
+                type: 'approval',
+                timestamp: new Date() as unknown as string,
+                transaction_id: trans_id,
+            }
+            await Promise.all([await this.transRepo.approveTransaction(trans_id), this.eventRepo.addEvent(event)])
+            
             res.json({result: 'Transaction approved'});
         }else{
             res.json({error: 'Transaction approval failed'})
@@ -48,8 +62,16 @@ export class ConfirmationRoute extends Route {
         let target_id: string = req.query.target_id as string
         let check = await this.checkSignatureAndTime(target_id, trans_id, device_id, signed_conf_code)
         if(check){
-            // save the event
-            this.transRepo.refuseTransaction(trans_id)
+            let uuid = this.uuidGen.getUUID()
+            let event: Event = {
+                _id: uuid,
+                user_id: target_id,
+                device_id: device_id,
+                type: 'denial',
+                timestamp: new Date() as unknown as string,
+                transaction_id: trans_id,
+            }
+            await Promise.all([await this.transRepo.approveTransaction(trans_id), this.eventRepo.addEvent(event)])
             res.json({result: 'Transaction refused'});
         }else{
             res.json({error: 'Transaction refusal failed'})

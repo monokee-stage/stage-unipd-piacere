@@ -49,16 +49,28 @@ export class DevicesRoute extends Route{
 	};
 
 	private addDevice = async (req: Request, res: Response, next: NextFunction) => {
+		let user_id: string = req.params.user_id
 		var device: Device = req.body;
-		var uuid = this.uuidGen.getUUID();
-		device._id = uuid;
-		await this.deviceRepo.addDevice(device);
+		var dUuid = this.uuidGen.getUUID();
+		device._id = dUuid;
+		device.user_id = user_id
+
+		let eUuid = this.uuidGen.getUUID()
+		let event = {
+			_id: eUuid,
+			user_id: user_id,
+			device_id: dUuid,
+			type: 'device addition',
+			timestamp: new Date() as unknown as string,
+		}
+		await Promise.all([await this.deviceRepo.addDevice(device), this.eventRepo.addEvent(event)])
+		
 		res.json({result: 'Device added successfully'});
 	};
 
 	private updateDevice = async (req: Request, res: Response, next: NextFunction) => {
 		var device: Device = req.body;
-		// it's important to take the next two values from the request params, and not from the device object, because those two values are verified in the preceding middlewares
+		// it's important to take the next two values from the request params, and not from the device object found in the body, because those two values are verified in the preceding middlewares
 		var id = req.params._id;
 		var user_id = req.params.user_id;
 		await this.deviceRepo.editDevice(id, user_id, device);
@@ -78,7 +90,18 @@ export class DevicesRoute extends Route{
 	private removeDevice = async (req: Request, res: Response, next: NextFunction) => {
 		var device_id = req.params.device_id
 		var user_id = req.params.user_id;
-		await this.deviceRepo.removeDevice(device_id, user_id);
+
+		let eUuid = this.uuidGen.getUUID()
+		let event = {
+			_id: eUuid,
+			user_id: user_id,
+			device_id: device_id,
+			type: 'device removal',
+			timestamp: new Date() as unknown as string,
+		}
+		// the device should not be removed from the database, it should just be archived
+		await Promise.all([await this.deviceRepo.removeDevice(device_id, user_id), this.eventRepo.addEvent(event)])
+
 		res.json({result: 'Removed successfully'});
 	};
 
