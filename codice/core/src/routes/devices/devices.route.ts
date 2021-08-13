@@ -12,6 +12,7 @@ import {DeviceRepository,
 import {container} from '../../ioc_config';
 import {TYPES} from 'repositories';
 import { UUIDGenerator } from '../../services/uuid-generator/uuid-generator';
+import { requestToFilter } from '../../utils/request-to-filter';
 
 @injectable()
 export class DevicesRoute extends Route{
@@ -36,7 +37,8 @@ export class DevicesRoute extends Route{
 
 	private getDevices = async (req: Request, res: Response, next: NextFunction) => {
 		var user_id = req.params.user_id;
-		var devs: Device[] = await this.deviceRepo.getDevices(user_id)
+		let filter = requestToFilter(req)
+		var devs: Device[] = await this.deviceRepo.getDevices(user_id, filter)
 		res.json(devs);
 	}
 
@@ -107,14 +109,16 @@ export class DevicesRoute extends Route{
 
 	private getUserLogs = async (req: Request, res: Response, next: NextFunction) => {
 		var user_id = req.params.user_id
-		var events: Event[] = await this.eventRepo.getUserEvents(user_id)
+		let filter = requestToFilter(req)
+		var events: Event[] = await this.eventRepo.getUserEvents(user_id, filter)
 		res.json(events)
 	};
 
 	private getDeviceLogs = async (req: Request, res: Response, next: NextFunction) => {
 		var user_id = req.params.user_id
 		var device_id = req.params.device_id
-		var events: Event[] = await this.eventRepo.getDeviceEvents(device_id, user_id)
+		let filter = requestToFilter(req)
+		var events: Event[] = await this.eventRepo.getDeviceEvents(device_id, user_id, filter)
 		res.json(events)
 	};
 }

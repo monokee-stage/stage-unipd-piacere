@@ -95,22 +95,6 @@ export class RequestsRoute extends Route {
 			location = results[1]
 		}
 		
-		// define the event
-		var event: Event = {
-			_id: this.uuidGen.getUUID(),
-			user_id: req.params.target_id,
-			type: 'request',
-			timestamp: new Date as unknown as string,
-		}
-		if(data.coordinates){
-			event.coordinates = data.coordinates
-		}
-		if(location){
-			event.location = location
-		}
-		if(data.extra_info){
-			event.extra_info = data.extra_info
-		}
 
 		// define the transaction
 		var trans: Transaction = {
@@ -130,6 +114,24 @@ export class RequestsRoute extends Route {
 		}
 		if(data.extra_info){
 			trans.extra_info = data.extra_info
+		}
+
+		// define the event
+		var event: Event = {
+			_id: this.uuidGen.getUUID(),
+			user_id: req.params.target_id,
+			type: 'request',
+			timestamp: new Date as unknown as string,
+			transaction_id: trans._id
+		}
+		if(data.coordinates){
+			event.coordinates = data.coordinates
+		}
+		if(location){
+			event.location = location
+		}
+		if(data.extra_info){
+			event.extra_info = data.extra_info
 		}
 		
 		// save event and transaction

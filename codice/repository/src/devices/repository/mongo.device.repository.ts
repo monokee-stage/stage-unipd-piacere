@@ -1,5 +1,7 @@
 import { injectable } from "inversify";
 import { MongoClient } from "mongodb";
+import { Filter } from "../../filter";
+import { applyQueryAndFilter } from "../../utils/applyQueryAndFilter";
 import { Device } from "../model/device";
 import { DeviceRepository } from "./device.repository";
 /*
@@ -28,9 +30,11 @@ export class MongoDeviceRepository implements DeviceRepository {
             return resolve(dev);
         })
     }
-    public getDevices(user_id: string): Promise<Device[]> {
+    public getDevices(user_id: string, filter?: Filter): Promise<Device[]> {
         return new Promise<Device[]> (async (resolve, reject) => {
-            var devs: Device[] = await this.devices.find( {user_id: user_id}).toArray();
+            console.log('repo getDevices received filter')
+            console.log(filter)
+            var devs: Device[] = await applyQueryAndFilter(this.devices, {user_id: user_id}, filter).toArray();
             return resolve(devs);
         })
     }
