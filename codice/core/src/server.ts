@@ -30,8 +30,29 @@ export default class Server {
 	}
 
 	// to be expanded by adding a url and a method parameter
-	loadMiddleware(middleware: any){
-		this.app.use(middleware);
+	loadMiddleware(middleware: any, url?: string, method?: string){
+		if(!url || !method) {
+			this.app.use(middleware);
+		}else{
+			switch (method) {
+				case 'GET':
+					this.app.get(url, middleware)
+					break
+				case 'POST':
+					this.app.post(url, middleware)
+					break
+				case 'PUT':
+					this.app.put(url, middleware)
+					break
+				case 'PATCH':
+					this.app.patch(url, middleware)
+					break
+				case 'DELETE':
+					this.app.delete(url, middleware)
+					break
+			}
+		}
+		
 	}
 
 }

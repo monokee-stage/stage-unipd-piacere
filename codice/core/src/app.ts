@@ -14,6 +14,8 @@ import { errorHandlerMiddleware } from './middleware/errorHandlerMiddleware';
 import { checkTokenMiddleware } from './middleware/checkTokenMiddleware';
 import { getMetadataMiddleware } from './middleware/getMetadataMiddleware';
 import { getTokenDataMiddleware } from './middleware/getTokenDataMiddleware';
+import { checkClientPermissionMiddleware } from './middleware/checkClientPermissionMiddleware';
+import { checkDeviceIdentityMiddleware } from './middleware/checkDeviceIdentityMiddleware';
 
 console.log('start');
 
@@ -33,9 +35,17 @@ server.loadMiddleware(getMetadataMiddleware);
 server.loadMiddleware(getTokenDataMiddleware);
 server.loadMiddleware(checkTokenMiddleware);
 
+server.loadMiddleware(checkClientPermissionMiddleware);
+server.loadMiddleware(checkDeviceIdentityMiddleware, '/user/:user_id/device/:device_id', 'GET');
+server.loadMiddleware(checkDeviceIdentityMiddleware, '/user/:user_id/device/:device_id', 'DELETE');
+
 server.loadRoute(deviceRoute);
 server.loadRoute(requestRoute);
 server.loadRoute(confirmationRoute);
+
+
+
+
 
 server.loadMiddleware(errorHandlerMiddleware);
 

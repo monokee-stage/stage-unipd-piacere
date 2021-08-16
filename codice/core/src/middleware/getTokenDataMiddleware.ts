@@ -8,7 +8,7 @@ import { TokenData } from "../services/token-converter/tokendata";
 export const getTokenDataMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     try {
         var tokenConverter = container.get<TokenConverter>(TokenConverter)
-        var metadata = res.locals.metadata
+        var metadata = res.locals.metaData
         var token = req.headers.authorization as string
         console.log(`token: ${token}`)
         var tokenData: TokenData = await tokenConverter.getTokenData(token, metadata)

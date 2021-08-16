@@ -36,8 +36,6 @@ export class TokenConverter implements Service{
 					}
 				})
 
-				console.log('response')
-				console.log(response.data)
 				return resolve(response.data)
 			}catch (err) {
 				return reject(err)

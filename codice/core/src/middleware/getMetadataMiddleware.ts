@@ -11,6 +11,6 @@ export const getMetadataMiddleware = async (req: Request, res: Response, next: N
     }
     var metadata = await metadataRepo.getMetadata(domain_id)
     // should check if metadata was retrieved correctly
-    res.locals.metadata = metadata
+    res.locals.metaData = metadata
     return next()
 }
