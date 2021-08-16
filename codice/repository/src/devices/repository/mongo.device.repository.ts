@@ -2,7 +2,7 @@ import { injectable } from "inversify";
 import { MongoClient } from "mongodb";
 import { Filter } from "../../filter";
 import { applyQueryAndFilter } from "../../utils/applyQueryAndFilter";
-import { Device } from "../model/device";
+import { Device, device_fields } from "../model/device";
 import { DeviceRepository } from "./device.repository";
 /*
 import dotenv from 'dotenv';
@@ -24,23 +24,59 @@ export class MongoDeviceRepository implements DeviceRepository {
         this.devices = this.database.collection('devices');
     }
 
-    public getDevice(device_id: string, user_id: string): Promise<Device> {
+    public getDevice(device_id: string, user_id: string, showArchived: boolean = false): Promise<Device> {
         return new Promise<Device> (async (resolve, reject) => {
-            var dev: Device = await this.devices.findOne( {_id: device_id, user_id: user_id});
+            let query: any = { _id: device_id, user_id: user_id }
+            if(!showArchived) {
+                query.archived = {$in: [false, null]}
+            }
+            var dev: Device = await this.devices.findOne(query, {projection: {archived: 0}})
             return resolve(dev);
         })
     }
-    public getDevices(user_id: string, filter?: Filter): Promise<Device[]> {
+    public getDevices(user_id: string, filter?: Filter, showArchived: boolean = false): Promise<Device[]> {
         return new Promise<Device[]> (async (resolve, reject) => {
             console.log('repo getDevices received filter')
             console.log(filter)
-            var devs: Device[] = await applyQueryAndFilter(this.devices, {user_id: user_id}, filter).toArray();
+            // if filter fields not specified specify all except archived
+            if(!filter) {
+                filter = new Filter()
+            }
+            if(!filter.fields) {
+                filter.fields = []
+            }
+
+            // remove archived from the filters, in case the client inserted it 
+            filter.fields = filter.fields.filter( (i) => {
+                return i !== 'archived'
+            })
+
+            if(filter.fields.length === 0){
+                let obj_keys = device_fields
+                // select all fields except archived (which is not a field of Device)
+                obj_keys.forEach((item) => {
+                    if(!filter?.fields?.includes(item)){
+                        filter?.fields?.push(item)
+                    }
+                })
+            }
+            
+            // console.log('filter.fields')
+            // console.log(filter.fields)
+            let query: any =  {user_id: user_id}
+            if(!showArchived) {
+                query.archived = {$in: [false, null]}
+            }
+            
+            var devs: Device[] = await applyQueryAndFilter(this.devices, query, filter).toArray();
             return resolve(devs);
         })
     }
     public addDevice(device: Device): Promise<void> {
         return new Promise<void> (async (resolve, reject) => {
-            await this.devices.insertOne(device)
+            let with_archived: any = device
+            with_archived.archived = false
+            await this.devices.insertOne(with_archived)
             return resolve()
         })
     }
@@ -51,9 +87,16 @@ export class MongoDeviceRepository implements DeviceRepository {
             return resolve()
         })
     }
+    
     public removeDevice(device_id: string, user_id: string): Promise<void> {
         return new Promise<void> (async (resolve, reject) => {
             await this.devices.deleteOne({_id: device_id, user_id: user_id})
+            return resolve()
+        })
+    }
+    public archiveDevice(device_id: string, user_id: string): Promise<void> {
+        return new Promise<void> (async (resolve, reject) => {
+            await this.devices.updateOne({_id: device_id, user_id: user_id}, {$set: {archived: true}})
             return resolve()
         })
     }

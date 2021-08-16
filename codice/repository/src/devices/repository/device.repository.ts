@@ -8,4 +8,5 @@ export interface DeviceRepository extends Repository{
     addDevice(device: Device): Promise<void>;
     editDevice(device_id: string, user_id: string, device: Device): Promise<void>
     removeDevice(device_id: string, user_id: string): Promise<void>;
+    archiveDevice(device_id: string, user_id: string): Promise<void>;
 }

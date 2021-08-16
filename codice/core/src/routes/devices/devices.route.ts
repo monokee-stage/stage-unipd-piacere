@@ -101,9 +101,11 @@ export class DevicesRoute extends Route{
 			type: 'device removal',
 			timestamp: new Date() as unknown as string,
 		}
-		// the device should not be removed from the database, it should just be archived
-		await Promise.all([await this.deviceRepo.removeDevice(device_id, user_id), this.eventRepo.addEvent(event)])
+		
+		// the device is not removed from the database, it's just archived
+		await Promise.all([await this.deviceRepo.archiveDevice(device_id, user_id), this.eventRepo.addEvent(event)])
 
+		// maybe I should check if the device to be deleted was actually present. For example by reading the result of the call archiveDevice
 		res.json({result: 'Removed successfully'});
 	};
 

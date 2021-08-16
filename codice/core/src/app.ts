@@ -36,7 +36,6 @@ server.loadMiddleware(getTokenDataMiddleware);
 server.loadMiddleware(checkTokenMiddleware);
 
 server.loadMiddleware(checkClientPermissionMiddleware);
-server.loadMiddleware(checkDeviceIdentityMiddleware, '/user/:user_id/device/:device_id', 'GET');
 server.loadMiddleware(checkDeviceIdentityMiddleware, '/user/:user_id/device/:device_id', 'DELETE');
 
 server.loadRoute(deviceRoute);
