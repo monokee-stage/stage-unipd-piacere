@@ -13,7 +13,6 @@ export class OSMGeoConverter implements GeoConverter {
 
 	public async getPlaceFromCoordinates(lat: number, lon: number): Promise<string> {
 		return new Promise<string>(async (resolve, reject) => {
-			console.log(`url: ${this.url}`)
 			try {
 				var result: any = await axios({
 					method: 'get',
@@ -24,12 +23,11 @@ export class OSMGeoConverter implements GeoConverter {
 						lon: lon
 					}
 				});
-				console.log(result)
 				return resolve(result.data.display_name);
 			}catch (err) {
-				return err;
+				return reject(err);
 			}
-		} )
+		})
 	}
 }
 

@@ -18,8 +18,12 @@ export class MongoMetadataRepository implements MetadataRepository {
 
     getMetadata(domain_id: string): Promise<Metadata> {
         return new Promise<Metadata> (async (resolve, reject) => {
-            var met: Metadata = await this.metadata.findOne( {_id: domain_id});
-            return resolve(met);
+            try {
+                var met: Metadata = await this.metadata.findOne({ _id: domain_id });
+                return resolve(met);
+            } catch(err) {
+                return reject(err)
+            }
         })
     }
     

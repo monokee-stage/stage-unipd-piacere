@@ -30,70 +30,81 @@ export class ConfirmationRoute extends Route {
 	}
 
     private approveTransaction = async (req: Request, res: Response, next: NextFunction) => {
-        let user_id: string = req.params.user_id
-        let trans_id: string = req.params.transaction_id
-        let device_id: string = req.query.device_id as string
-        let signed_conf_code: string = req.query.signed_conf_code as string
-        let target_id: string = req.query.target_id as string
-        let check = await this.checkSignatureAndTime(target_id, trans_id, device_id, signed_conf_code)
+        try {
+            let user_id: string = req.params.user_id
+            let trans_id: string = req.params.transaction_id
+            let device_id: string = req.query.device_id as string
+            let signed_conf_code: string = req.query.signed_conf_code as string
+            let target_id: string = req.query.target_id as string
+            let check = await this.checkSignatureAndTime(target_id, trans_id, device_id, signed_conf_code)
 
-        if(check){
-            let uuid = this.uuidGen.getUUID()
-            let event: Event = {
-                _id: uuid,
-                user_id: target_id,
-                device_id: device_id,
-                type: 'approval',
-                timestamp: new Date() as unknown as string,
-                transaction_id: trans_id,
+            if(check){
+                let uuid = this.uuidGen.getUUID()
+                let event: Event = {
+                    _id: uuid,
+                    user_id: target_id,
+                    device_id: device_id,
+                    type: 'approval',
+                    timestamp: new Date() as unknown as string,
+                    transaction_id: trans_id,
+                }
+                await Promise.all([await this.transRepo.approveTransaction(trans_id), this.eventRepo.addEvent(event)])
+                
+                res.json({result: 'Transaction approved'});
+            }else{
+                res.json({error: 'Transaction approval failed'})
             }
-            await Promise.all([await this.transRepo.approveTransaction(trans_id), this.eventRepo.addEvent(event)])
-            
-            res.json({result: 'Transaction approved'});
-        }else{
-            res.json({error: 'Transaction approval failed'})
+        } catch(err) {
+            return next(err)
         }
     };
     private denyTransaction = async (req: Request, res: Response, next: NextFunction) => {
-        let user_id: string = req.params.user_id
-        let trans_id: string = req.params.transaction_id
-        let device_id: string = req.query.device_id as string
-        let signed_conf_code: string = req.query.signed_conf_code as string
-        let target_id: string = req.query.target_id as string
-        let check = await this.checkSignatureAndTime(target_id, trans_id, device_id, signed_conf_code)
-        if(check){
-            let uuid = this.uuidGen.getUUID()
-            let event: Event = {
-                _id: uuid,
-                user_id: target_id,
-                device_id: device_id,
-                type: 'denial',
-                timestamp: new Date() as unknown as string,
-                transaction_id: trans_id,
+        try {
+            let user_id: string = req.params.user_id
+            let trans_id: string = req.params.transaction_id
+            let device_id: string = req.query.device_id as string
+            let signed_conf_code: string = req.query.signed_conf_code as string
+            let target_id: string = req.query.target_id as string
+            let check = await this.checkSignatureAndTime(target_id, trans_id, device_id, signed_conf_code)
+            if(check){
+                let uuid = this.uuidGen.getUUID()
+                let event: Event = {
+                    _id: uuid,
+                    user_id: target_id,
+                    device_id: device_id,
+                    type: 'denial',
+                    timestamp: new Date() as unknown as string,
+                    transaction_id: trans_id,
+                }
+                await Promise.all([await this.transRepo.approveTransaction(trans_id), this.eventRepo.addEvent(event)])
+                res.json({result: 'Transaction refused'});
+            }else{
+                res.json({error: 'Transaction refusal failed'})
             }
-            await Promise.all([await this.transRepo.approveTransaction(trans_id), this.eventRepo.addEvent(event)])
-            res.json({result: 'Transaction refused'});
-        }else{
-            res.json({error: 'Transaction refusal failed'})
+        } catch(err) {
+            return next(err)
         }
     };
 
     private checkSignatureAndTime = async (user_id: string, transaction_id: string, device_id: string, signed_confirmation_code: string): Promise<boolean> => {
         return new Promise<boolean>(async (resolve, reject) => {
-            var transaction: Transaction = await this.transRepo.getTransaction(transaction_id)
-            var ttl = transaction.ttl
-            
-            let conf_code = transaction.confirmation_code
-            console.log(`user_id: ${user_id} device_id: ${device_id}`)
-            let device = await this.deviceRepo.getDevice(device_id, user_id)
-            let pub_key = device.public_key
-            let dec: Decryptor = new RSADecryptor(pub_key)
-            let plain_conf_code = dec.decrypt(signed_confirmation_code)
+            try {
+                var transaction: Transaction = await this.transRepo.getTransaction(transaction_id)
+                var ttl = transaction.ttl
 
-            if(plain_conf_code == conf_code) {
-                return resolve(true)
-            }else{
-                return resolve(false)
+                let conf_code = transaction.confirmation_code
+                let device = await this.deviceRepo.getDevice(device_id, user_id)
+                let pub_key = device.public_key
+                let dec: Decryptor = new RSADecryptor(pub_key)
+                let plain_conf_code = dec.decrypt(signed_confirmation_code)
+
+                if (plain_conf_code === conf_code) {
+                    return resolve(true)
+                } else {
+                    return resolve(false)
+                }
+            } catch(err) {
+                reject(err)
             }
         })
     }

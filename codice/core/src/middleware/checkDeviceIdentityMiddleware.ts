@@ -32,8 +32,6 @@ export const checkDeviceIdentityMiddleware = async (req: Request, res: Response,
                 }
                 
                 let pub_key = deviceData.public_key
-                console.log('pub_key')
-                console.log(pub_key)
                 let rsaDecryptor: Decryptor = new RSADecryptor(pub_key)
                 let decrypted = rsaDecryptor.decrypt(signed_id)
                 if(claimed_id && (decrypted == claimed_id) ){

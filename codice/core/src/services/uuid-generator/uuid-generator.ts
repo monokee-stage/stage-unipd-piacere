@@ -4,6 +4,10 @@ import { injectable } from 'inversify';
 @injectable()
 export class UUIDGenerator {
     public getUUID(): string {
-        return crypto.randomUUID();
+        try {
+            return crypto.randomUUID();
+        } catch(err) {
+            throw err
+        }
     }
 }

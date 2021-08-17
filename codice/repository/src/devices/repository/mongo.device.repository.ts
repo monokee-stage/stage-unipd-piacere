@@ -26,78 +26,102 @@ export class MongoDeviceRepository implements DeviceRepository {
 
     public getDevice(device_id: string, user_id: string, showArchived: boolean = false): Promise<Device> {
         return new Promise<Device> (async (resolve, reject) => {
-            let query: any = { _id: device_id, user_id: user_id }
-            if(!showArchived) {
-                query.archived = {$in: [false, null]}
+            try {
+                let query: any = { _id: device_id, user_id: user_id }
+                if (!showArchived) {
+                    query.archived = { $in: [false, null] }
+                }
+                var dev: Device = await this.devices.findOne(query, { projection: { archived: 0 } })
+                return resolve(dev);
+            } catch(err) {
+                return reject(err)
             }
-            var dev: Device = await this.devices.findOne(query, {projection: {archived: 0}})
-            return resolve(dev);
         })
     }
     public getDevices(user_id: string, filter?: Filter, showArchived: boolean = false): Promise<Device[]> {
         return new Promise<Device[]> (async (resolve, reject) => {
-            console.log('repo getDevices received filter')
-            console.log(filter)
-            // if filter fields not specified specify all except archived
-            if(!filter) {
-                filter = new Filter()
-            }
-            if(!filter.fields) {
-                filter.fields = []
-            }
+            try {
+                console.log('repo getDevices received filter')
+                console.log(filter)
+                // if filter fields not specified specify all except archived
+                if (!filter) {
+                    filter = new Filter()
+                }
+                if (!filter.fields) {
+                    filter.fields = []
+                }
 
-            // remove archived from the filters, in case the client inserted it 
-            filter.fields = filter.fields.filter( (i) => {
-                return i !== 'archived'
-            })
-
-            if(filter.fields.length === 0){
-                let obj_keys = device_fields
-                // select all fields except archived (which is not a field of Device)
-                obj_keys.forEach((item) => {
-                    if(!filter?.fields?.includes(item)){
-                        filter?.fields?.push(item)
-                    }
+                // remove archived from the filters, in case the client inserted it 
+                filter.fields = filter.fields.filter((i) => {
+                    return i !== 'archived'
                 })
+
+                if (filter.fields.length === 0) {
+                    let obj_keys = device_fields
+                    // select all fields except archived (which is not a field of Device)
+                    obj_keys.forEach((item) => {
+                        if (!filter?.fields?.includes(item)) {
+                            filter?.fields?.push(item)
+                        }
+                    })
+                }
+
+                // console.log('filter.fields')
+                // console.log(filter.fields)
+                let query: any = { user_id: user_id }
+                if (!showArchived) {
+                    query.archived = { $in: [false, null] }
+                }
+
+                var devs: Device[] = await applyQueryAndFilter(this.devices, query, filter).toArray();
+                return resolve(devs);
+            } catch(err) {
+                return reject(err)
             }
-            
-            // console.log('filter.fields')
-            // console.log(filter.fields)
-            let query: any =  {user_id: user_id}
-            if(!showArchived) {
-                query.archived = {$in: [false, null]}
-            }
-            
-            var devs: Device[] = await applyQueryAndFilter(this.devices, query, filter).toArray();
-            return resolve(devs);
         })
     }
     public addDevice(device: Device): Promise<void> {
         return new Promise<void> (async (resolve, reject) => {
-            let with_archived: any = device
-            with_archived.archived = false
-            await this.devices.insertOne(with_archived)
-            return resolve()
+            try {
+                let with_archived: any = device
+                with_archived.archived = false
+                await this.devices.insertOne(with_archived)
+                return resolve()
+            } catch(err) {
+                return reject(err)
+            }
         })
     }
-    public editDevice(device_id: string, user_id: string, device: Device): Promise<void> {
-        return new Promise<void> (async (resolve, reject) => {
-            var result = await this.devices.updateOne({_id: device_id}, {$set: device})
-            console.log(result)
-            return resolve()
+    // returns the number of matched devices
+    public editDevice(device_id: string, user_id: string, device: Partial<Device>): Promise<number> {
+        return new Promise<number> (async (resolve, reject) => {
+            try {
+                var result = await this.devices.updateOne({ _id: device_id }, { $set: device })
+                return resolve(result.matchedCount)
+            } catch(err) {
+                return reject(err)
+            }
         })
     }
     
     public removeDevice(device_id: string, user_id: string): Promise<void> {
         return new Promise<void> (async (resolve, reject) => {
-            await this.devices.deleteOne({_id: device_id, user_id: user_id})
-            return resolve()
+            try {
+                await this.devices.deleteOne({ _id: device_id, user_id: user_id })
+                return resolve()
+            } catch(err) {
+                return reject(err)
+            }
         })
     }
     public archiveDevice(device_id: string, user_id: string): Promise<void> {
         return new Promise<void> (async (resolve, reject) => {
-            await this.devices.updateOne({_id: device_id, user_id: user_id}, {$set: {archived: true}})
-            return resolve()
+            try {
+                await this.devices.updateOne({ _id: device_id, user_id: user_id }, { $set: { archived: true } })
+                return resolve()
+            } catch(err) {
+                return reject(err)
+            }
         })
     }
     

@@ -19,40 +19,51 @@ export default class Server {
 	}
 
 	listen() {
-		this.app.listen(this.port, this.host, () => {
-			console.log(`listening on http://${this.host}:${this.port}`);
-			// console.log('http://localhost:8000');
-		})
+		try {
+			this.app.listen(this.port, this.host, () => {
+				console.log(`listening on http://${this.host}:${this.port}`);
+				// console.log('http://localhost:8000');
+			})
+		} catch(err) {
+			throw err
+		}
 	}
 
 	loadRoute(route: Route) {
-		this.app.use('/', route.router);
+		try {
+			this.app.use('/', route.router);
+		} catch(err) {
+			throw err
+		}
 	}
 
 	// to be expanded by adding a url and a method parameter
 	loadMiddleware(middleware: any, url?: string, method?: string){
-		if(!url || !method) {
-			this.app.use(middleware);
-		}else{
-			switch (method) {
-				case 'GET':
-					this.app.get(url, middleware)
-					break
-				case 'POST':
-					this.app.post(url, middleware)
-					break
-				case 'PUT':
-					this.app.put(url, middleware)
-					break
-				case 'PATCH':
-					this.app.patch(url, middleware)
-					break
-				case 'DELETE':
-					this.app.delete(url, middleware)
-					break
+		try {
+			if (!url || !method) {
+				this.app.use(middleware);
+			} else {
+				switch (method) {
+					case 'GET':
+						this.app.get(url, middleware)
+						break
+					case 'POST':
+						this.app.post(url, middleware)
+						break
+					case 'PUT':
+						this.app.put(url, middleware)
+						break
+					case 'PATCH':
+						this.app.patch(url, middleware)
+						break
+					case 'DELETE':
+						this.app.delete(url, middleware)
+						break
+				}
 			}
+		} catch(err) {
+			throw err
 		}
-		
 	}
-
+	
 }

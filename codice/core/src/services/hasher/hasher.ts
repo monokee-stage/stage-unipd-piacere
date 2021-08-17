@@ -15,8 +15,12 @@ export class Hasher implements Service {
 
     // returns the hashed string encoded in base64
     public hashText(text: string): string {
-        this.hash = crypto.createHash(this.algorithm)
-        this.hash.update(text)
-        return this.hash.digest().toString('base64')
+        try {
+            this.hash = crypto.createHash(this.algorithm)
+            this.hash.update(text)
+            return this.hash.digest().toString('base64')
+        } catch(err) {
+            throw err
+        }
     }
 }

@@ -11,7 +11,6 @@ export class RSADecryptor implements Decryptor {
 
     decrypt(enc_text: string, encoding: string = 'base64'): string {
         try {
-            console.log(enc_text)
             let encod2: any = encoding
             let dec = crypto.publicDecrypt(this.publicKey, Buffer.from(enc_text, encod2))
             return dec.toString()

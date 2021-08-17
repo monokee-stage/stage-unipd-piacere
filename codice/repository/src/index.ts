@@ -3,7 +3,6 @@ export { Filter } from './filter'
 
 export { Metadata } from './metadata/model/metadata.model'
 export { MetadataRepository } from './metadata/repository/metadata.repository'
-export { RedisMetadataRepository } from './metadata/repository/redis.metadata.repository'
 export { MongoMetadataRepository } from './metadata/repository/mongo.metadata.repository'
 
 export { Transaction } from './transactions/model/transaction.model';

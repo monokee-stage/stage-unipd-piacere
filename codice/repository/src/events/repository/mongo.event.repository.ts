@@ -24,22 +24,34 @@ export class MongoEventRepository implements EventRepository {
 
     getUserEvents(user_id: string, filter?: Filter): Promise<Event[]> {
         return new Promise<Event[]> (async (resolve, reject) => {
-            let query = {user_id: user_id}
-            var events = await applyQueryAndFilter(this.events, query, filter).toArray()
-            return resolve(events)
+            try {
+                let query = { user_id: user_id }
+                var events = await applyQueryAndFilter(this.events, query, filter).toArray()
+                return resolve(events)
+            } catch(err) {
+                return reject(err)
+            }
         });
     }
     getDeviceEvents(device_id: string, user_id: string, filter?: Filter): Promise<Event[]> {
         return new Promise<Event[]> (async (resolve, reject) => {
-            let query = {device_id: device_id, user_id: user_id}
-            var events =await applyQueryAndFilter(this.events, query, filter).toArray()
-            return resolve(events)
+            try {
+                let query = { device_id: device_id, user_id: user_id }
+                var events = await applyQueryAndFilter(this.events, query, filter).toArray()
+                return resolve(events)
+            } catch(err) {
+                return reject(err)
+            }
         });
     }
     addEvent(event: Event): Promise<void> {
         return new Promise<void> (async (resolve, reject) => {
-            await this.events.insertOne(event)
-            return resolve()
+            try {
+                await this.events.insertOne(event)
+                return resolve()
+            } catch(err) {
+                return reject(err)
+            }
         });
     }
     

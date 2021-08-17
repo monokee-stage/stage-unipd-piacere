@@ -15,11 +15,15 @@ export class AESDecryptor implements Decryptor{
 	}
 
 	public decrypt(text: string, encoding: string = 'base64'): string {
-		let decipher = crypto.createDecipheriv(this.algorithm, Buffer.from(this.key), Buffer.from(this.iv));
-		let encod2: any = encoding; 
-		let buf = Buffer.from(text, encod2);
-		let decr = decipher.update(buf);
-		decr = Buffer.concat([decr, decipher.final()]);
-		return decr.toString();
+		try {
+			let decipher = crypto.createDecipheriv(this.algorithm, Buffer.from(this.key), Buffer.from(this.iv));
+			let encod2: any = encoding;
+			let buf = Buffer.from(text, encod2);
+			let decr = decipher.update(buf);
+			decr = Buffer.concat([decr, decipher.final()]);
+			return decr.toString();
+		} catch(err) {
+			throw err
+		}
 	}
 }

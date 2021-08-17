@@ -42,10 +42,6 @@ server.loadRoute(deviceRoute);
 server.loadRoute(requestRoute);
 server.loadRoute(confirmationRoute);
 
-
-
-
-
 server.loadMiddleware(errorHandlerMiddleware);
 
 

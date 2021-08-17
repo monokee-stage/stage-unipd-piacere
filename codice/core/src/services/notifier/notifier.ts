@@ -14,16 +14,19 @@ export class Notifier implements Service{
         
     }
 
-    // the data argument should not be of type any but NotificationData
     sendNotification(registration_tokens: string[], data: NotificationData): Promise<void> {
-        return new Promise<void>(async (resolve,reject) => {
-            var convData = stringifyNestedFields(data)
-            var message: admin.messaging.MulticastMessage = {
-                data: convData,
-                tokens: registration_tokens
+        return new Promise<void>(async (resolve, reject) => {
+            try {
+                var convData = stringifyNestedFields(data)
+                var message: admin.messaging.MulticastMessage = {
+                    data: convData,
+                    tokens: registration_tokens
+                }
+                await admin.messaging().sendMulticast(message)
+                return resolve()
+            } catch(err) {
+                reject(err)
             }
-            await admin.messaging().sendMulticast(message)
-            return resolve()
         })
     }
 }

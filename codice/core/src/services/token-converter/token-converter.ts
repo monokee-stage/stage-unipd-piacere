@@ -22,7 +22,6 @@ export class TokenConverter implements Service{
 			try {
 				var enc_secret = metadata.core.client_secret
 				var dec_secret = this.aesDecryptor.decrypt(enc_secret, 'base64')
-				console.log(dec_secret)
 				var authstring = metadata.core.client_id + ':' + dec_secret
 				var based = Buffer.from(authstring).toString('base64')
 				// var auth = 'Basic WnRZUTNWRkgyeXlLTHNjTDpBV1JESExjdzRtTmVKNzJa';

@@ -20,8 +20,12 @@ export class MetadataRoute extends Route {
 	}
 
 	private metadata = async (req: Request, res: Response, next: NextFunction) => {
-		var id: string = req.params.domain_id;
-		var met = await this.metadataRepo.getMetadata(id);
-		res.json({metadata_url: met.metadata_url});
+		try {
+			var id: string = req.params.domain_id;
+			var met = await this.metadataRepo.getMetadata(id);
+			res.json({ metadata_url: met.metadata_url });
+		} catch(err) {
+			return next(err)
+		}
 	}
 }
