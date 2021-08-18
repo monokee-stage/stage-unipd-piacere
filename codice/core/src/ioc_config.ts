@@ -36,6 +36,8 @@ import { AESDecryptor} from './services/decryptor/aes-decryptor/aes-decryptor';
 
 import { MetadataController } from './controllers/metadata/metadata.controller';
 import { DevicesController } from './controllers/devices/devices.controller';
+import { RequestsController } from './controllers/requests/request.controller';
+import { ConfirmationController } from './controllers/confirmations/confirmations.controller';
 
 
 export const container: Container = new Container();
@@ -60,5 +62,5 @@ container.bind<Route>(coreTYPES.ConfirmationRoute).to(ConfirmationRoute);
 
 container.bind<MetadataController>(MetadataController).to(MetadataController)
 container.bind<DevicesController>(DevicesController).to(DevicesController);
-/*container.bind<Route>(coreTYPES.RequestsRoute).to(RequestsRoute);
-container.bind<Route>(coreTYPES.ConfirmationRoute).to(ConfirmationRoute);*/
+container.bind<RequestsController>(RequestsController).to(RequestsController);
+container.bind<ConfirmationController>(ConfirmationController).to(ConfirmationController);
