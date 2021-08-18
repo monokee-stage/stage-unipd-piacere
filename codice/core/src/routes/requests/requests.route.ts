@@ -45,7 +45,7 @@ export class RequestsRoute extends Route {
 	// maybe it'd be better to send a response to the requester before the end of the operations
 	private requestConfirmation = async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			var requester_id = req.params.user_id
+			// var requester_id = req.params.user_id
 			var target_id = req.params.target_id
 			var data = req.body
 
@@ -75,6 +75,7 @@ export class RequestsRoute extends Route {
 			var location = undefined;
 			if (results.length > 1) {
 				// results[1] is undefined if GeoConverter was unable to do the geocoding
+				// so from now on check location before using it
 				location = results[1]
 			}
 
@@ -84,10 +85,10 @@ export class RequestsRoute extends Route {
 				_id: this.uuidGen.getUUID(),
 				user_id: req.params.target_id,
 				requester_id: req.params.user_id,
-				request_timestamp: new Date() as unknown as string,
+				request_timestamp: new Date().toJSON(),
 				confirmation_code: hashedConfCode,
 				status: 'pending',
-				ttl: 30
+				ttl: parseInt(process.env.TRANSACTION_TTL || '30')
 			}
 			if (data.coordinates) {
 				trans.coordinates = data.coordinates
@@ -138,7 +139,8 @@ export class RequestsRoute extends Route {
 				notifData.extra_info = data.extra_info
 			}
 
-			// send notification to the device
+			// send the notification to the device
+			// prima invia notifica e verifica se invio andato a buon fine, poi salva evento e transazione
 			await this.notifier.sendNotification(devices_tokens, notifData)
 
 			// show result to the requester
@@ -151,7 +153,6 @@ export class RequestsRoute extends Route {
 		}
 	};
 
-	// maybe I should check the device of the requester with a certificate (private, public key)
 	private getStatus = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			var trans_id: string = req.params.operation_id;

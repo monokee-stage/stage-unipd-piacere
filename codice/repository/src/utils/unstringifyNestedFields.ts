@@ -1,10 +1,15 @@
-export const unstringifyNestedFileds = (obj: any): any => {
+export const unstringifyNestedFields = (obj: any): any => {
     try {
         var converted_obj = { ...obj };
         for (let field in converted_obj) {
-            console.log(converted_obj[field])
-            if (converted_obj[field].charAt(0) == '{') {
-                converted_obj[field] = JSON.parse(converted_obj[field]);
+            // console.log(converted_obj[field])
+            if (converted_obj[field].charAt(0) === '{') {
+                try {
+                    converted_obj[field] = JSON.parse(converted_obj[field]);
+                } catch(err) {
+                    converted_obj[field] = converted_obj[field]
+                }
+                
             }
 
         }

@@ -8,7 +8,6 @@ import { RSADecryptor } from '../services/decryptor/rsa-decryptor/rsa-decryptor'
 
 export const checkDeviceIdentityMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        console.log('passing through checkDeviceIdentityMiddleware')
         // controllo che sia stata attuata la verifica del tipo di client
         if(res.locals.verified_client_type){
             if(res.locals.verified_client_type === 'app'){
@@ -34,7 +33,7 @@ export const checkDeviceIdentityMiddleware = async (req: Request, res: Response,
                 let pub_key = deviceData.public_key
                 let rsaDecryptor: Decryptor = new RSADecryptor(pub_key)
                 let decrypted = rsaDecryptor.decrypt(signed_id)
-                if(claimed_id && (decrypted == claimed_id) ){
+                if(claimed_id && (decrypted === claimed_id) ){
                     return next()
                 }else{
                     return res.status(401).json({error: 'The device which requested the action is not the same as the target device'})

@@ -2,7 +2,6 @@ import {Request, Response, NextFunction } from "express"
 
 export const checkClientPermissionMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        console.log('passing through checkClientPermissionMiddleware')
         let tokenData = res.locals.tokenData
         let metaData = res.locals.metaData
         if(!tokenData){

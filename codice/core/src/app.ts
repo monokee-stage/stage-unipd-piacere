@@ -17,7 +17,6 @@ import { getTokenDataMiddleware } from './middleware/getTokenDataMiddleware';
 import { checkClientPermissionMiddleware } from './middleware/checkClientPermissionMiddleware';
 import { checkDeviceIdentityMiddleware } from './middleware/checkDeviceIdentityMiddleware';
 
-console.log('start');
 
 var server = new Server({port: 3001,host: 'localhost'})
 

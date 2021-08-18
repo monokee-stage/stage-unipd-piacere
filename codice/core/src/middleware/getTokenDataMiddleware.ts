@@ -10,7 +10,6 @@ export const getTokenDataMiddleware = async (req: Request, res: Response, next: 
         var tokenConverter = container.get<TokenConverter>(TokenConverter)
         var metadata = res.locals.metaData
         var token = req.headers.authorization as string
-        console.log(`token: ${token}`)
         var tokenData: TokenData = await tokenConverter.getTokenData(token, metadata)
         // should check if tokenData was retrieved correctly
         res.locals.tokenData = tokenData

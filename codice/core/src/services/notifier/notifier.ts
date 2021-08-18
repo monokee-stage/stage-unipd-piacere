@@ -1,9 +1,10 @@
 import { Service } from "../service";
 import { NotificationData } from "./notification.data";
-import {stringifyNestedFields} from 'repositories';
+import { stringifyNestedFields, unstringifyNestedFields} from 'repositories';
 
 import * as admin from 'firebase-admin';
 
+// sposta in repository
 export class Notifier implements Service{
 
     constructor(serviceAccountPath?: string) {
@@ -18,6 +19,7 @@ export class Notifier implements Service{
         return new Promise<void>(async (resolve, reject) => {
             try {
                 var convData = stringifyNestedFields(data)
+                
                 var message: admin.messaging.MulticastMessage = {
                     data: convData,
                     tokens: registration_tokens

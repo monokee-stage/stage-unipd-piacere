@@ -3,11 +3,9 @@ import { checkScopes } from "../utils/check-scope";
 
 export const checkTokenMiddleware = async(req: Request, res: Response, next: NextFunction) => {
     try {
-        var metadata = res.locals.metaData
         var tokenData = res.locals.tokenData
 
         // next three lines are just for development and just while I don't have a valid token
-        tokenData.scopes = ['get_devices']
         tokenData.active = true
         tokenData.sub = req.params.user_id
         

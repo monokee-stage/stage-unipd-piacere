@@ -2,7 +2,7 @@ import { Transaction } from "../model/transaction.model";
 import { TransactionRepository } from "./transaction.repository";
 
 import Redis from 'ioredis';
-import { unstringifyNestedFileds } from "../../utils/unstringifyNestedFields";
+import { unstringifyNestedFields } from "../../utils/unstringifyNestedFields";
 import { stringifyNestedFields } from "../../utils/stringifyNestedFields";
 import { injectable } from "inversify";
 
@@ -22,7 +22,9 @@ export class RedisTransactionRepository implements TransactionRepository {
                 var ttl = obj.ttl
                 delete obj.ttl
                 delete obj._id
-                await this.redis.hset(transaction._id, obj)
+                let result1 = await this.redis.hset(transaction._id, obj)
+                console.log('redis add result')
+                console.log(result1)
                 await this.redis.expire(transaction._id, ttl as unknown as number)
                 return resolve()
             } catch(err) {
@@ -33,6 +35,7 @@ export class RedisTransactionRepository implements TransactionRepository {
     public approveTransaction(transaction_id: string): Promise<void> {
         return new Promise<void> (async(resolve, reject) => {
             try {
+                // forse Redis resetta il ttl
                 this.redis.hset(transaction_id, 'status', 'approved');
                 return resolve()
             } catch(err) {
@@ -43,6 +46,7 @@ export class RedisTransactionRepository implements TransactionRepository {
     public refuseTransaction(transaction_id: string): Promise<void> {
         return new Promise<void> (async(resolve, reject) => {
             try {
+                // forse Redis resetta il ttl
                 this.redis.hset(transaction_id, 'status', 'denied');
                 return resolve()
             } catch(err) {
@@ -59,8 +63,9 @@ export class RedisTransactionRepository implements TransactionRepository {
                 var p2 = this.redis.ttl(transaction_id)
                 var results = await Promise.all([p1, p2])
 
-                var transaction: Transaction = unstringifyNestedFileds(results[0])
+                var transaction: Transaction = unstringifyNestedFields(results[0])
                 var ttl = results[1]
+                // fix
                 if (ttl !== -2) {
                     transaction._id = transaction_id
                     transaction.ttl = ttl

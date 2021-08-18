@@ -22,7 +22,6 @@ export default class Server {
 		try {
 			this.app.listen(this.port, this.host, () => {
 				console.log(`listening on http://${this.host}:${this.port}`);
-				// console.log('http://localhost:8000');
 			})
 		} catch(err) {
 			throw err
