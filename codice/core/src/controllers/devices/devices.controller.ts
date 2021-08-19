@@ -1,7 +1,6 @@
 import 'reflect-metadata';
 
 
-import { Router, Request, Response, NextFunction } from 'express';
 import { inject, injectable } from 'inversify';
 
 import {
@@ -9,14 +8,12 @@ import {
     Device,
     EventRepository,
     Event,
-    Filter
+    Filter,
+    DeviceFields
 } from 'repositories';
 
-import { container } from '../../ioc_config';
 import { TYPES } from 'repositories';
 import { UUIDGenerator } from '../../services/uuid-generator/uuid-generator';
-import { requestToFilter } from '../../utils/request-to-filter';
-import { device_fields } from '../../../../repository/dist/devices/model/device';
 
 @injectable()
 export class DevicesController {
@@ -55,11 +52,11 @@ export class DevicesController {
         return new Promise<string>(async (resolve, reject) => {
             try {
                 // should check if the device is well formed
-                var dUuid = this.uuidGen.getUUID();
+                var dUuid = UUIDGenerator.getUUID();
                 device._id = dUuid;
                 device.user_id = user_id
 
-                let eUuid = this.uuidGen.getUUID()
+                let eUuid = UUIDGenerator.getUUID()
                 let event = {
                     _id: eUuid,
                     user_id: user_id,
@@ -83,11 +80,11 @@ export class DevicesController {
                 if (!device) {
                     return reject({ error: 'No data received' })
                 }
-                if (Object.keys(device).length !== device_fields.length) {
+                if (Object.keys(device).length !== Object.keys(DeviceFields).length) {
                     return reject({ error: 'Number of fields not correct' })
                 }
                 for (const field in device) {
-                    if (!device_fields.includes(field)) {
+                    if (!Object.keys(DeviceFields).includes(field)) {
                         return reject({ error: 'Fields not correct' })
                     }
                 }
@@ -112,11 +109,11 @@ export class DevicesController {
                 if (!device) {
                     return reject({ error: 'No data received' })
                 }
-                if (Object.keys(device).length > device_fields.length) {
+                if (Object.keys(device).length > Object.keys(DeviceFields).length) {
                     return reject({ error: 'Number of fields not correct' })
                 }
                 for (const field in device) {
-                    if (!device_fields.includes(field)) {
+                    if (!Object.keys(DeviceFields).includes(field)) {
                         return reject({ error: 'Fields not correct' })
                     }
                 }
@@ -139,7 +136,7 @@ export class DevicesController {
     public removeDevice(user_id: string, device_id: string): Promise<void> {
         return new Promise<void>(async (resolve, reject) => {
             try {
-                let eUuid = this.uuidGen.getUUID()
+                let eUuid = UUIDGenerator.getUUID()
                 let event = {
                     _id: eUuid,
                     user_id: user_id,

@@ -29,7 +29,7 @@ export class ConfirmationController {
                 let check = await this.checkSignatureAndTime(user_id, trans_id, device_id, signed_conf_code)
 
                 if (check) {
-                    let uuid = this.uuidGen.getUUID()
+                    let uuid = UUIDGenerator.getUUID()
                     let event: Event = {
                         _id: uuid,
                         user_id: user_id,
@@ -54,7 +54,7 @@ export class ConfirmationController {
             try {
                 let check = await this.checkSignatureAndTime(user_id, trans_id, device_id, signed_conf_code)
                 if (check) {
-                    let uuid = this.uuidGen.getUUID()
+                    let uuid = UUIDGenerator.getUUID()
                     let event: Event = {
                         _id: uuid,
                         user_id: user_id,

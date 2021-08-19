@@ -9,9 +9,7 @@ export const unstringifyNestedFields = (obj: any): any => {
                 } catch(err) {
                     converted_obj[field] = converted_obj[field]
                 }
-                
             }
-
         }
         return converted_obj
     } catch(err) {

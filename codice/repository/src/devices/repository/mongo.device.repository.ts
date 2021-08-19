@@ -2,7 +2,7 @@ import { injectable } from "inversify";
 import { MongoClient } from "mongodb";
 import { Filter } from "../../filter";
 import { applyQueryAndFilter } from "../../utils/applyQueryAndFilter";
-import { Device, device_fields } from "../model/device";
+import { Device, DeviceFields } from "../model/device";
 import { DeviceRepository } from "./device.repository";
 /*
 import dotenv from 'dotenv';
@@ -57,13 +57,12 @@ export class MongoDeviceRepository implements DeviceRepository {
                 })
 
                 if (filter.fields.length === 0) {
-                    let obj_keys = device_fields
                     // select all fields except archived (which is not a field of Device)
-                    obj_keys.forEach((item) => {
-                        if (!filter?.fields?.includes(item)) {
-                            filter?.fields?.push(item)
+                    for (const field in DeviceFields) {
+                        if (!filter?.fields?.includes(field)) {
+                            filter?.fields?.push(field)
                         }
-                    })
+                    }
                 }
 
                 // console.log('filter.fields')

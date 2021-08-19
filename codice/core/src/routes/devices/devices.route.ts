@@ -9,11 +9,8 @@ import {DeviceRepository,
 		EventRepository,
 		Event} from 'repositories';
 
-import {container} from '../../ioc_config';
-import {TYPES} from 'repositories';
-import { UUIDGenerator } from '../../services/uuid-generator/uuid-generator';
+
 import { requestToFilter } from '../../utils/request-to-filter';
-import { device_fields } from '../../../../repository/dist/devices/model/device';
 import { DevicesController } from '../../controllers/devices/devices.controller';
 
 @injectable()

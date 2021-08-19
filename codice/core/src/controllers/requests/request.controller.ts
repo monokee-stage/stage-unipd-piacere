@@ -41,7 +41,7 @@ export class RequestsController {
             try {
 
                 // generate confirmation code and hash it
-                var confCode = this.rcGen.getCode()
+                var confCode = RandomCodeGenerator.getCode()
                 var hashedConfCode = this.hasher.hashText(confCode)
 
                 var promisesToExecute = []
@@ -73,7 +73,7 @@ export class RequestsController {
 
                 // define the transaction
                 var trans: Transaction = {
-                    _id: this.uuidGen.getUUID(),
+                    _id: UUIDGenerator.getUUID(),
                     user_id: target_id,
                     requester_id: user_id,
                     request_timestamp: new Date().toJSON(),
@@ -93,7 +93,7 @@ export class RequestsController {
 
                 // define the event
                 var event: Event = {
-                    _id: this.uuidGen.getUUID(),
+                    _id: UUIDGenerator.getUUID(),
                     user_id: target_id,
                     type: 'request',
                     timestamp: new Date as unknown as string,

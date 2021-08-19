@@ -9,7 +9,7 @@ export { Transaction } from './transactions/model/transaction.model';
 export { TransactionRepository } from './transactions/repository/transaction.repository';
 export { RedisTransactionRepository } from './transactions/repository/redis.transaction.repository';
 
-export { Device } from './devices/model/device';
+export { Device, DeviceFields } from './devices/model/device';
 export { DeviceRepository } from './devices/repository/device.repository';
 export { MongoDeviceRepository } from './devices/repository/mongo.device.repository';
 
@@ -17,7 +17,7 @@ export { Event} from './events/model/event';
 export { EventRepository} from './events/repository/event.repository';
 export { MongoEventRepository } from './events/repository/mongo.event.repository';
 
-export {stringifyNestedFields} from './utils/stringifyNestedFields';
+export { stringifyNestedFields } from './utils/stringifyNestedFields';
 export { unstringifyNestedFields } from './utils/unstringifyNestedFields';
 
 export {TYPES} from './types';
