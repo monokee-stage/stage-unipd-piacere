@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { MongoClient } from "mongodb";
-import { RequestFilter } from "../../filter";
+import { BaseRequestFilter } from "../../RequestFilter";
 import { applyQueryAndFilter } from "../../utils/applyQueryAndFilter";
 import { Event } from "../model/event";
 import { EventRepository } from "./event.repository";
@@ -22,22 +22,22 @@ export class MongoEventRepository implements EventRepository {
         this.events = this.database.collection('events');
     }
 
-    getUserEvents(user_id: string, filter?: RequestFilter): Promise<Event[]> {
+    getUserEvents(user_id: string, filter?: BaseRequestFilter): Promise<Event[]> {
         return new Promise<Event[]> (async (resolve, reject) => {
             try {
                 let query = { user_id: user_id }
-                var events = await applyQueryAndFilter(this.events, query, filter).toArray()
+                var events = await applyQueryAndFilter<Event>(this.events, query, filter).toArray()
                 return resolve(events)
             } catch(err) {
                 return reject(err)
             }
         });
     }
-    getDeviceEvents(device_id: string, user_id: string, filter?: RequestFilter): Promise<Event[]> {
+    getDeviceEvents(device_id: string, user_id: string, filter?: BaseRequestFilter): Promise<Event[]> {
         return new Promise<Event[]> (async (resolve, reject) => {
             try {
                 let query = { device_id: device_id, user_id: user_id }
-                var events = await applyQueryAndFilter(this.events, query, filter).toArray()
+                var events = await applyQueryAndFilter<Event>(this.events, query, filter).toArray()
                 return resolve(events)
             } catch(err) {
                 return reject(err)

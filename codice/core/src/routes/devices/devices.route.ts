@@ -111,7 +111,7 @@ export class DevicesRoute extends Route{
 	private getUserLogs = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			var user_id = req.params.user_id
-			let filter = requestToFilter(req)
+			let filter = requestToFilter(req, 'TypedRequestFilter')
 			var events: Event[] = await this.deviceController.getUserLogs(user_id, filter)
 			res.json(events)
 		} catch(err) {
@@ -123,7 +123,7 @@ export class DevicesRoute extends Route{
 		try {
 			var user_id = req.params.user_id
 			var device_id = req.params.device_id
-			let filter = requestToFilter(req)
+			let filter = requestToFilter(req, 'TypedRequestFilter')
 			var events: Event[] = await this.deviceController.getDeviceLogs(user_id, device_id, filter)
 			res.json(events)
 		} catch(err) {

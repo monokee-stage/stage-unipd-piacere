@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
 import { MongoClient } from "mongodb";
-import { RequestFilter } from "../../filter";
+import { BaseRequestFilter } from "../../RequestFilter";
 import { applyQueryAndFilter } from "../../utils/applyQueryAndFilter";
 import { controlledMongoFindOne } from "../../utils/controlledMongoFindOne";
 import { Device, DeviceFields } from "../model/device";
@@ -39,14 +39,14 @@ export class MongoDeviceRepository implements DeviceRepository {
             }
         })
     }
-    public getDevices(user_id: string, filter?: RequestFilter, showArchived: boolean = false): Promise<Device[]> {
+    public getDevices(user_id: string, filter?: BaseRequestFilter, showArchived: boolean = false): Promise<Device[]> {
         return new Promise<Device[]> (async (resolve, reject) => {
             try {
                 console.log('repo getDevices received filter')
                 console.log(filter)
                 // if filter fields not specified specify all except archived
                 if (!filter) {
-                    filter = new RequestFilter()
+                    filter = new BaseRequestFilter({})
                 }
                 if (!filter.fields) {
                     filter.fields = []
@@ -73,7 +73,7 @@ export class MongoDeviceRepository implements DeviceRepository {
                     query.archived = { $in: [false, null] }
                 }
 
-                var devs: Device[] = await applyQueryAndFilter(this.devices, query, filter).toArray();
+                var devs: Device[] = await applyQueryAndFilter<Device>(this.devices, query, filter).toArray();
                 return resolve(devs);
             } catch(err) {
                 return reject(err)

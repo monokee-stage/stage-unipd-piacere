@@ -1,47 +1,58 @@
-import { Collection, FindCursor } from "mongodb";
-import { RequestFilter } from "../filter";
+import { Collection , FindCursor, Projection } from "mongodb";
+import { BaseRequestFilter, RequestFilter, TypedRequestFilter } from "../RequestFilter";
 
-// should fix this function as a generic, and not by returning ...<any>
-export const applyQueryAndFilter = (collection: Collection, query: any, filter?: RequestFilter): FindCursor<any> => {
+// T must be the type of the elements in collection. It must not be an array of that type
+export const applyQueryAndFilter = <T>(collection: Collection, query: any, filter?: RequestFilter): FindCursor<T> => {
     try {
         console.log('apply query and filter received filter')
         console.log(filter)
         if (!filter) {
-            return collection.find(query);
+            return collection.find<T>(query);
         }
-        // tipo
+
         let match = query
-        if (filter.type) {
-            match.type = filter.type
-        }
-        // campi
-        let projection: { [key: string]: 1 | 0 } = {}
-        if (filter.fields) {
-            filter.fields.forEach((item) => {
-                projection[item] = 1
-            })
-            if (!filter.fields.includes('_id')) {
-                projection._id = 0
+
+        if(<TypedRequestFilter>filter) {
+            let typedFilter: TypedRequestFilter = filter as TypedRequestFilter
+            // tipo
+            if (typedFilter.type) {
+                match.type = typedFilter.type
             }
         }
+        if(<BaseRequestFilter>filter) {
+            let baseFilter: BaseRequestFilter = filter as BaseRequestFilter
+            // campi
+            let projection: { [key: string]: 1 | 0 } = {}
+            if (baseFilter.fields) {
+                baseFilter.fields.forEach((item) => {
+                    projection[item] = 1
+                })
+                if (!baseFilter.fields.includes('_id')) {
+                    projection._id = 0
+                }
+            }
 
 
-        let cursor = collection.find(match)
-        if (projection) {
-            cursor = cursor.project(projection)
+            let cursor = collection.find<T>(match)
+            if (projection) {
+                cursor = cursor.project<T>(projection as Projection<T>)
+            }
+            if (baseFilter.order) {
+                cursor = cursor.sort(baseFilter.order)
+            }
+            if (baseFilter.pagination) {
+                console.log(baseFilter.pagination)
+
+                cursor = cursor
+                    .skip(baseFilter.pagination.page_num * baseFilter.pagination.elements_num)
+                    .limit(baseFilter.pagination.elements_num)
+            }
+
+            return cursor
+        }else {
+            throw {error: 'Filter not in the right format'}
         }
-        if (filter.order) {
-            cursor = cursor.sort(filter.order)
-        }
-        if (filter.pagination) {
-            console.log(filter.pagination)
 
-            cursor = cursor
-                .skip(filter.pagination.page_num * filter.pagination.elements_num)
-                .limit(filter.pagination.elements_num)
-        }
-
-        return cursor
     } catch(err) {
         throw err
     }

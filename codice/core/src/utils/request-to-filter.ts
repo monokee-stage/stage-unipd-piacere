@@ -1,9 +1,9 @@
 import { Request } from 'express';
-import { RequestFilter } from 'repositories'
+import { RequestFilter, BaseRequestFilter, TypedRequestFilter } from 'repositories'
 
-export const requestToFilter = (req: Request): RequestFilter => {
+export const requestToFilter = (req: Request, filterType: 'BaseRequestFilter' | 'TypedRequestFilter' = 'BaseRequestFilter'): RequestFilter => {
     try {
-        let filter: RequestFilter = new RequestFilter()
+        let filter: any = {}
         // ordinamento
         let order = req.query.order
         if (order) {
@@ -36,19 +36,29 @@ export const requestToFilter = (req: Request): RequestFilter => {
                 filter.fields = fields as string[]
             }
         }
-        // tipo
-        filter.type = req.query.type as string
+        if (filterType === 'TypedRequestFilter' ){
+            // tipo
+            filter.type = req.query.type as string
+        }
+        
         // paginazione
-        // should consider accepting the presence of just page elements implying that the page number is 0
-        if (req.query.page_num && req.query.elements_num) {
+        // accepting the presence of just "elements_num", implying that the page number is 0
+        if (req.query.elements_num) {
+            let pageNum: number = +(req.query.page_num || '0')
             let paginationObj = {
-                page_num: +req.query.page_num,
+                page_num: pageNum >= 0 ? pageNum : 0,
                 elements_num: +req.query.elements_num
             }
             filter.pagination = paginationObj
         }
 
-        return filter
+        if (filterType === 'TypedRequestFilter') {
+            return new TypedRequestFilter(filter);
+        }else {
+            return new BaseRequestFilter(filter);
+        }
+        
+
     } catch(err) {
         throw err
     }
