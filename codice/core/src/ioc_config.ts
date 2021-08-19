@@ -22,13 +22,14 @@ import {
     EventRepository,
     MongoEventRepository,
     TransactionRepository,
-    RedisTransactionRepository
+    RedisTransactionRepository,
+    NotificationRepository,
+    FirebaseNotificationRepository
 } from 'repositories';
 
 
 import {TYPES} from 'repositories';
 import { coreTYPES } from './types';
-import { Notifier } from './services/notifier/notifier';
 import { GeoConverter } from './services/geo-converter/geo-converter';
 import { OSMGeoConverter } from './services/geo-converter/osm-geo-converter';
 import { Decryptor } from './services/decryptor/decryptor';
@@ -46,7 +47,6 @@ container.bind<UUIDGenerator>(UUIDGenerator).to(UUIDGenerator);
 container.bind<RandomCodeGenerator>(RandomCodeGenerator).to(RandomCodeGenerator);
 container.bind<TokenConverter>(TokenConverter).to(TokenConverter);
 container.bind<Hasher>(Hasher).toConstantValue(new Hasher());
-container.bind<Notifier>(Notifier).toConstantValue(new Notifier());
 container.bind<GeoConverter>(coreTYPES.GeoConverter).toConstantValue(new OSMGeoConverter());
 container.bind<Decryptor>(AESDecryptor).toConstantValue(new AESDecryptor())
 
@@ -54,7 +54,9 @@ container.bind<MetadataRepository>(TYPES.MetadataRepository).to(MongoMetadataRep
 container.bind<DeviceRepository>(TYPES.DeviceRepository).to(MongoDeviceRepository);
 container.bind<EventRepository>(TYPES.EventRepository).to(MongoEventRepository);
 container.bind<TransactionRepository>(TYPES.TransactionRepository).to(RedisTransactionRepository);
+container.bind<NotificationRepository>(TYPES.NotificationRepository).toConstantValue(new FirebaseNotificationRepository());
 
+// le Route non sono astratte quindi per loro non è necessario coreTYPES
 container.bind<Route>(coreTYPES.MetadataRoute).to(MetadataRoute)
 container.bind<Route>(coreTYPES.DevicesRoute).to(DevicesRoute);
 container.bind<Route>(coreTYPES.RequestsRoute).to(RequestsRoute);

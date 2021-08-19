@@ -1,6 +1,6 @@
 
 // maybe a timestamp would be useful
-export class NotificationData{
+export class NotificationData {
     transaction_id!: string
     confirmation_code!: string
     location?: string

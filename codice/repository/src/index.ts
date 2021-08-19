@@ -17,6 +17,10 @@ export { Event} from './events/model/event';
 export { EventRepository} from './events/repository/event.repository';
 export { MongoEventRepository } from './events/repository/mongo.event.repository';
 
+export { NotificationData } from './notification/model/notification.data';
+export { NotificationRepository } from './notification/respository/notification.repository';
+export { FirebaseNotificationRepository } from './notification/respository/firebase.notification.repository';
+
 export { stringifyNestedFields } from './utils/stringifyNestedFields';
 export { unstringifyNestedFields } from './utils/unstringifyNestedFields';
 

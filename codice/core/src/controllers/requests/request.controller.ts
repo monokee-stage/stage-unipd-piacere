@@ -17,8 +17,8 @@ import { RedisTransactionRepository } from 'repositories';
 import { UUIDGenerator } from '../../services/uuid-generator/uuid-generator';
 import { RandomCodeGenerator } from '../../services/random-code-generator/random-code-generator';
 import { Hasher } from '../../services/hasher/hasher';
-import { Notifier } from '../../services/notifier/notifier';
-import { NotificationData } from '../../services/notifier/notification.data';
+import { NotificationRepository } from 'repositories';
+import { NotificationData } from 'repositories';
 import { GeoConverter } from '../../services/geo-converter/geo-converter';
 import { coreTYPES } from '../../types';
 
@@ -31,7 +31,7 @@ export class RequestsController {
         @inject(UUIDGenerator) private uuidGen: UUIDGenerator,
         @inject(RandomCodeGenerator) private rcGen: RandomCodeGenerator,
         @inject(Hasher) private hasher: Hasher,
-        @inject(Notifier) private notifier: Notifier,
+        @inject(TYPES.NotificationRepository) private notifier: NotificationRepository,
         @inject(coreTYPES.GeoConverter) private geoConv: GeoConverter) {
     }
 
@@ -109,12 +109,6 @@ export class RequestsController {
                     event.extra_info = data.extra_info
                 }
 
-                // save event and transaction
-                Promise.all([
-                    await this.eventsRepo.addEvent(event),
-                    await this.transactionRepo.addTransaction(trans)
-                ])
-
                 // define notification data (what the device will get)
                 var notifData: NotificationData = {
                     transaction_id: trans._id,
@@ -133,6 +127,14 @@ export class RequestsController {
                 // send the notification to the device
                 // prima invia notifica e verifica se invio andato a buon fine, poi salva evento e transazione
                 await this.notifier.sendNotification(devices_tokens, notifData)
+
+                // myabe check if all the devices where reached
+
+                // save event and transaction
+                Promise.all([
+                    await this.eventsRepo.addEvent(event),
+                    await this.transactionRepo.addTransaction(trans)
+                ])
 
                 // show result to the requester
                 return resolve(trans._id)
