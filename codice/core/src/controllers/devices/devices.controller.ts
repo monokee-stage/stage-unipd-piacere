@@ -8,7 +8,7 @@ import {
     Device,
     EventRepository,
     Event,
-    Filter,
+    RequestFilter,
     DeviceFields
 } from 'repositories';
 
@@ -25,7 +25,7 @@ export class DevicesController {
 
     // the methods below should permit to edit/update/delete only the devices of the user specified in the query
 
-    public getDevices(user_id: string, filter?: Filter): Promise<Device[]> {
+    public getDevices(user_id: string, filter?: RequestFilter): Promise<Device[]> {
         return new Promise<Device[]>(async (resolve, reject) => {
             try {
                 var devs: Device[] = await this.deviceRepo.getDevices(user_id, filter)
@@ -36,10 +36,10 @@ export class DevicesController {
         })
     }
 
-    public getDevice(user_id: string, device_id: string): Promise<Device> {
-        return new Promise<Device>(async (resolve, reject) => {
+    public getDevice(user_id: string, device_id: string): Promise<Device | undefined> {
+        return new Promise<Device | undefined>(async (resolve, reject) => {
             try {
-                var dev: Device = await this.deviceRepo.getDevice(device_id, user_id)
+                var dev: Device | undefined = await this.deviceRepo.getDevice(device_id, user_id)
                 return resolve(dev)
             } catch (err) {
                 return reject(err)
@@ -156,7 +156,7 @@ export class DevicesController {
         })
     }
 
-    public getUserLogs(user_id: string, filter?: Filter): Promise<Event[]> {
+    public getUserLogs(user_id: string, filter?: RequestFilter): Promise<Event[]> {
         return new Promise<Event[]>(async (resolve, reject) => {
             try {
                 var events: Event[] = await this.eventRepo.getUserEvents(user_id, filter)
@@ -167,7 +167,7 @@ export class DevicesController {
         })
     }
 
-    public getDeviceLogs(user_id: string, device_id: string, filter?: Filter): Promise<Event[]> {
+    public getDeviceLogs(user_id: string, device_id: string, filter?: RequestFilter): Promise<Event[]> {
         return new Promise<Event[]>(async (resolve, reject) => {
             try {
                 var events: Event[] = await this.eventRepo.getDeviceEvents(device_id, user_id, filter)

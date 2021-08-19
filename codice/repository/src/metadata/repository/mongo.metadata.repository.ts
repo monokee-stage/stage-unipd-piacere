@@ -1,5 +1,6 @@
 import { injectable } from "inversify";
 import { Collection, MongoClient } from "mongodb";
+import { controlledMongoFindOne } from "../../utils/controlledMongoFindOne";
 import { Metadata } from "../model/metadata.model";
 import { MetadataRepository } from "./metadata.repository";
 
@@ -16,10 +17,10 @@ export class MongoMetadataRepository implements MetadataRepository {
         this.metadata = db.collection(process.env.METADATA_MONGODB_COLLECTION_NAME || '')
     }
 
-    getMetadata(domain_id: string): Promise<Metadata> {
-        return new Promise<Metadata> (async (resolve, reject) => {
+    getMetadata(domain_id: string): Promise<Metadata | undefined> {
+        return new Promise<Metadata | undefined> (async (resolve, reject) => {
             try {
-                var met: Metadata = await this.metadata.findOne({ _id: domain_id });
+                var met: Metadata | undefined = await controlledMongoFindOne<Metadata>(this.metadata,{ _id: domain_id });
                 return resolve(met);
             } catch(err) {
                 return reject(err)

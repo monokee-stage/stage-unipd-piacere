@@ -1,8 +1,8 @@
 import { Collection, FindCursor } from "mongodb";
-import { Filter } from "../filter";
+import { RequestFilter } from "../filter";
 
 // should fix this function as a generic, and not by returning ...<any>
-export const applyQueryAndFilter = (collection: Collection, query: any, filter?: Filter): FindCursor<any> => {
+export const applyQueryAndFilter = (collection: Collection, query: any, filter?: RequestFilter): FindCursor<any> => {
     try {
         console.log('apply query and filter received filter')
         console.log(filter)

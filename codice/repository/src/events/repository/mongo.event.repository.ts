@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { MongoClient } from "mongodb";
-import { Filter } from "../../filter";
+import { RequestFilter } from "../../filter";
 import { applyQueryAndFilter } from "../../utils/applyQueryAndFilter";
 import { Event } from "../model/event";
 import { EventRepository } from "./event.repository";
@@ -22,7 +22,7 @@ export class MongoEventRepository implements EventRepository {
         this.events = this.database.collection('events');
     }
 
-    getUserEvents(user_id: string, filter?: Filter): Promise<Event[]> {
+    getUserEvents(user_id: string, filter?: RequestFilter): Promise<Event[]> {
         return new Promise<Event[]> (async (resolve, reject) => {
             try {
                 let query = { user_id: user_id }
@@ -33,7 +33,7 @@ export class MongoEventRepository implements EventRepository {
             }
         });
     }
-    getDeviceEvents(device_id: string, user_id: string, filter?: Filter): Promise<Event[]> {
+    getDeviceEvents(device_id: string, user_id: string, filter?: RequestFilter): Promise<Event[]> {
         return new Promise<Event[]> (async (resolve, reject) => {
             try {
                 let query = { device_id: device_id, user_id: user_id }

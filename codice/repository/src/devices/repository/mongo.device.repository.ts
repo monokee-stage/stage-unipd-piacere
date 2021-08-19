@@ -1,7 +1,8 @@
 import { injectable } from "inversify";
 import { MongoClient } from "mongodb";
-import { Filter } from "../../filter";
+import { RequestFilter } from "../../filter";
 import { applyQueryAndFilter } from "../../utils/applyQueryAndFilter";
+import { controlledMongoFindOne } from "../../utils/controlledMongoFindOne";
 import { Device, DeviceFields } from "../model/device";
 import { DeviceRepository } from "./device.repository";
 /*
@@ -24,28 +25,28 @@ export class MongoDeviceRepository implements DeviceRepository {
         this.devices = this.database.collection('devices');
     }
 
-    public getDevice(device_id: string, user_id: string, showArchived: boolean = false): Promise<Device> {
-        return new Promise<Device> (async (resolve, reject) => {
+    public getDevice(device_id: string, user_id: string, showArchived: boolean = false): Promise<Device | undefined> {
+        return new Promise<Device | undefined> (async (resolve, reject) => {
             try {
                 let query: any = { _id: device_id, user_id: user_id }
                 if (!showArchived) {
                     query.archived = { $in: [false, null] }
                 }
-                var dev: Device = await this.devices.findOne(query, { projection: { archived: 0 } })
+                let dev: Device | undefined = await controlledMongoFindOne<Device>(this.devices, query, { projection: { archived: 0 } })
                 return resolve(dev);
             } catch(err) {
                 return reject(err)
             }
         })
     }
-    public getDevices(user_id: string, filter?: Filter, showArchived: boolean = false): Promise<Device[]> {
+    public getDevices(user_id: string, filter?: RequestFilter, showArchived: boolean = false): Promise<Device[]> {
         return new Promise<Device[]> (async (resolve, reject) => {
             try {
                 console.log('repo getDevices received filter')
                 console.log(filter)
                 // if filter fields not specified specify all except archived
                 if (!filter) {
-                    filter = new Filter()
+                    filter = new RequestFilter()
                 }
                 if (!filter.fields) {
                     filter.fields = []

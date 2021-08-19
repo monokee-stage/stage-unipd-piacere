@@ -1,9 +1,9 @@
 import { Request } from 'express';
-import { Filter } from 'repositories'
+import { RequestFilter } from 'repositories'
 
-export const requestToFilter = (req: Request): Filter => {
+export const requestToFilter = (req: Request): RequestFilter => {
     try {
-        let filter: Filter = new Filter()
+        let filter: RequestFilter = new RequestFilter()
         // ordinamento
         let order = req.query.order
         if (order) {

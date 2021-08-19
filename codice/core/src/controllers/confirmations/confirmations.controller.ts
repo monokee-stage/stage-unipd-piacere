@@ -4,7 +4,8 @@ import { Router, Request, Response, NextFunction } from 'express';
 import {
     Transaction, TransactionRepository,
     Event, EventRepository,
-    DeviceRepository
+    DeviceRepository,
+    Device
 } from 'repositories';
 import { TYPES } from 'repositories';
 
@@ -88,7 +89,10 @@ export class ConfirmationController {
                 // set ttl = tt+min_ttl
                 if (transaction.status === 'pending' && ttl > min_ttl) {
                     let conf_code = transaction.confirmation_code
-                    let device = await this.deviceRepo.getDevice(device_id, user_id)
+                    let device: Device | undefined = await this.deviceRepo.getDevice(device_id, user_id)
+                    if(!device) {
+                        return reject({error: 'Device not found'})
+                    }
                     let pub_key = device.public_key
                     let dec: Decryptor = new RSADecryptor(pub_key)
                     let plain_conf_code = dec.decrypt(signed_confirmation_code)

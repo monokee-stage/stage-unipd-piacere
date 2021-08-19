@@ -1,5 +1,5 @@
 import {Request, Response, NextFunction } from "express";
-import { MetadataRepository } from "repositories";
+import { Metadata, MetadataRepository } from "repositories";
 import { TYPES } from "repositories";
 import { container } from "../ioc_config";
 
@@ -10,9 +10,12 @@ export const getMetadataMiddleware = async (req: Request, res: Response, next: N
         if(!domain_id) {
             return res.json({error: 'Domain_id not provided'})
         }
-        var metadata = await metadataRepo.getMetadata(domain_id)
-        // should check if metadata was retrieved correctly
-        res.locals.metaData = metadata
+        var metadata: Metadata | undefined = await metadataRepo.getMetadata(domain_id)
+        if(metadata) {
+            res.locals.metaData = metadata
+        }else{
+            return res.json({error: 'Metadata not existing for this domain_id'})
+        }
         return next()
     } catch(err) {
         return next(err)

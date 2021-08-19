@@ -1,4 +1,4 @@
-export class Filter {
+export class RequestFilter {
     order?: {
         [key: string]: 1|-1
     }

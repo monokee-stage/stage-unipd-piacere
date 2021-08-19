@@ -13,7 +13,7 @@ import { MetadataController } from '../../controllers/metadata/metadata.controll
 export class MetadataRoute extends Route {
 	 
 
-	constructor(@inject(MetadataController) private metadataCtrl: MetadataController) {
+	constructor(@inject(MetadataController) private metadataController: MetadataController) {
 		super()
 		this.basePath = '/metadata/:domain_id';
 		this.router = Router();
@@ -22,7 +22,7 @@ export class MetadataRoute extends Route {
 
 	private getMetadata = async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			let url = await this.metadataCtrl.getMetadata(req.params.domain_id)
+			let url = await this.metadataController.getMetadata(req.params.domain_id)
 			res.json({ metadata_url: url });
 		} catch (err) {
 			return next(err)

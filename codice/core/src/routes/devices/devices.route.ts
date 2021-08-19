@@ -45,10 +45,10 @@ export class DevicesRoute extends Route{
 
 	private getDevice = async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			var user_id = req.params.user_id;
-			var device_id = req.params.device_id;
-			var dev: Device = await this.deviceController.getDevice(user_id, device_id)
-			res.json(dev);
+			var user_id = req.params.user_id
+			var device_id = req.params.device_id
+			var dev: Device | undefined = await this.deviceController.getDevice(user_id, device_id)
+			res.json(dev)
 		} catch(err) {
 			return next(err)
 		}

@@ -1,5 +1,5 @@
 export { Repository } from './repository'
-export { Filter } from './filter'
+export { RequestFilter} from './filter'
 
 export { Metadata } from './metadata/model/metadata.model'
 export { MetadataRepository } from './metadata/repository/metadata.repository'
