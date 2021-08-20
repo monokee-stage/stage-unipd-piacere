@@ -123,7 +123,7 @@ export class DevicesController {
                 if (device.user_id !== undefined) device.user_id = user_id
                 let result = await this.deviceRepo.editDevice(device_id, user_id, device);
                 if (result === 0) {
-                    return reject({ result: 'Device not found' })
+                    return reject({ error: 'Device not found' })
                 } else {
                     return resolve();
                 }
