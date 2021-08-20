@@ -1,4 +1,5 @@
 import {Request, Response, NextFunction } from "express"
+import { CodedError } from "../coded.error"
 
 export const checkClientPermissionMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -45,7 +46,7 @@ export const checkClientPermissionMiddleware = async (req: Request, res: Respons
             }
         }
 
-        return res.status(401).json({error: 'Client type not permitted'})
+        return next(new CodedError('Client type not permitted', 401))
     } catch (err) {
         return next(err)
     }

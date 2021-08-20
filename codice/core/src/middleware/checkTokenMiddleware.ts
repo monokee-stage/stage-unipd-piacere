@@ -1,4 +1,5 @@
 import {Request, Response, NextFunction } from "express";
+import { CodedError } from "../coded.error";
 import { checkScopes } from "../utils/check-scope";
 
 export const checkTokenMiddleware = async(req: Request, res: Response, next: NextFunction) => {
@@ -17,13 +18,13 @@ export const checkTokenMiddleware = async(req: Request, res: Response, next: Nex
             return next()
         }else{
             if(!tokenData){
-                return res.status(401).json({error: 'Unable to get token data'})
+                return next(new CodedError('Unable to get token data', 401))
             }else if(!tokenData.active){
-                return res.status(401).json({error: 'Token not valid'})
+                return next(new CodedError('Token not valid', 401))
             }else if(tokenData.sub !== req.params.user_id){
-                return res.status(401).json({error: 'Token owner and specified user are not the same'})
+                return next(new CodedError('Token owner and specified user are not the same', 401))
             }else if(!are_scopes_correct){
-                return res.status(401).json({error: 'Scopes not correct'})
+                return next(new CodedError('Scopes not correct', 401))
             }
         }
     } catch(err) {

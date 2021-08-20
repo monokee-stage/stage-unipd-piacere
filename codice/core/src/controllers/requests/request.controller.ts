@@ -21,6 +21,7 @@ import { NotificationRepository } from 'repositories';
 import { NotificationData } from 'repositories';
 import { GeoConverter } from '../../services/geo-converter/geo-converter';
 import { coreTYPES } from '../../types';
+import { CodedError } from '../../coded.error';
 
 @injectable()
 export class RequestsController {
@@ -150,13 +151,13 @@ export class RequestsController {
             try {
                 var trans: Transaction = await this.transactionRepo.getTransaction(trans_id)
                 if (Object.keys(trans).length === 0) {
-                    return reject({ error: 'No transaction with that id' });
+                    return reject(new CodedError('No transaction with that id', 401));
                 }
                 // verify if the one who is asking for the status is the same that issued the request
                 if (trans.requester_id === user_id) {
                     return resolve(trans.status);
                 } else {
-                    return reject({ error: 'You are not the issuer of this request' })
+                    return reject(new CodedError('You are not the issuer of this request', 401))
                 }
             } catch (err) {
                 return reject(err)

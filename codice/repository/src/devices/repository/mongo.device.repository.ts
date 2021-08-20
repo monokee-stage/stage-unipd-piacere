@@ -11,18 +11,22 @@ dotenv.config();*/
 
 @injectable()
 export class MongoDeviceRepository implements DeviceRepository {
-    client: MongoClient;
+    client!: MongoClient;
     database: any;
     devices: any; 
     
 
     constructor() {
-        var uri = process.env.MAIN_MONGODB_URI || '';
-        this.client = new MongoClient(uri);
-        this.client.connect();
+        try {
+            var uri = process.env.MAIN_MONGODB_URI || '';
+            this.client = new MongoClient(uri);
+            this.client.connect();
 
-        this.database = this.client.db('mfa');
-        this.devices = this.database.collection('devices');
+            this.database = this.client.db('mfa');
+            this.devices = this.database.collection('devices');
+        } catch(err) {
+            err
+        }
     }
 
     public getDevice(device_id: string, user_id: string, showArchived: boolean = false): Promise<Device | undefined> {

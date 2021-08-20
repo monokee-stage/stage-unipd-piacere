@@ -50,7 +50,7 @@ export const applyQueryAndFilter = <T>(collection: Collection, query: any, filte
 
             return cursor
         }else {
-            throw {error: 'Filter not in the right format'}
+            throw new Error('Filter not in the right format')
         }
 
     } catch(err) {

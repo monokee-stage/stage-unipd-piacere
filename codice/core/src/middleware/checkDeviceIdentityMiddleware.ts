@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 
 import { inject } from 'inversify';
 import { DeviceRepository, TYPES } from 'repositories';
+import { CodedError } from '../coded.error';
 import { container } from '../ioc_config';
 import { Decryptor } from '../services/decryptor/decryptor';
 import { RSADecryptor } from '../services/decryptor/rsa-decryptor/rsa-decryptor';
@@ -14,20 +15,20 @@ export const checkDeviceIdentityMiddleware = async (req: Request, res: Response,
                 // se la richiesta viene dall'app verifico il dispositivo
                 let user_id = req.params.user_id
                 if(!user_id) {
-                    return res.json({error: 'User id not found'})
+                    return next(new CodedError('User id not found', 401))
                 }
                 let claimed_id = req.params.device_id
                 if(!claimed_id) {
-                    return res.json({error: 'Claimed id not found'})
+                    return next(new CodedError('Claimed id not found', 401))
                 }
                 let signed_id = req.query.signed_device_id as string
                 if(!signed_id) {
-                    return res.json({error: 'Signed id not found'})
+                    return next(new CodedError('Signed id not found', 401))
                 }
                 let deviceRepo = container.get<DeviceRepository>(TYPES.DeviceRepository)
                 let deviceData = await deviceRepo.getDevice(claimed_id, user_id)
                 if(!deviceData) {
-                    return res.json({error: 'Device not found'})
+                    return next(new CodedError('Device not found', 401))
                 }
                 
                 let pub_key = deviceData.public_key
@@ -36,14 +37,14 @@ export const checkDeviceIdentityMiddleware = async (req: Request, res: Response,
                 if(claimed_id && (decrypted === claimed_id) ){
                     return next()
                 }else{
-                    return res.status(401).json({error: 'The device which requested the action is not the same as the target device'})
+                    return next(new CodedError('The device which requested the action is not the same as the target device', 401))
                 }
             }else {
                 // client types other than the mobile app don't need device verification
                 return next()
             }
         }else{
-            return res.status(401).json({error: 'The client type is not verified'})
+            return next(new CodedError('The client type is not verified', 401))
         }
     }catch(err) {
         return next(err)

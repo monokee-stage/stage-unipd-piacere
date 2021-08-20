@@ -12,11 +12,11 @@ import {DeviceRepository,
 
 import { requestToFilter } from '../../utils/request-to-filter';
 import { DevicesController } from '../../controllers/devices/devices.controller';
+import { CodedError } from '../../coded.error';
 
 @injectable()
 export class DevicesRoute extends Route{
-	constructor(
-		@inject(DevicesController) private deviceController: DevicesController) {
+	constructor(@inject(DevicesController) private deviceController: DevicesController) {
 		super();
 		this.basePath = '/user/:user_id';
 		this.router = Router();

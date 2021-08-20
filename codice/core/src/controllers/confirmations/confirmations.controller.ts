@@ -13,6 +13,7 @@ import { injectable, inject } from 'inversify';
 import { RSADecryptor } from '../../services/decryptor/rsa-decryptor/rsa-decryptor';
 import { Decryptor } from '../../services/decryptor/decryptor';
 import { UUIDGenerator } from '../../services/uuid-generator/uuid-generator';
+import { CodedError } from '../../coded.error';
 
 @injectable()
 export class ConfirmationController {
@@ -43,7 +44,7 @@ export class ConfirmationController {
 
                     return resolve()
                 } else {
-                    return reject({ error: 'Transaction approval failed' })
+                    return reject(new CodedError('Transaction approval failed', 401))
                 }
             } catch (err) {
                 return reject(err)
@@ -67,7 +68,7 @@ export class ConfirmationController {
                     await Promise.all([await this.transRepo.refuseTransaction(trans_id), this.eventRepo.addEvent(event)])
                     return resolve()
                 } else {
-                    return reject({ error: 'Transaction refusal failed' })
+                    return reject(new CodedError('Transaction refusal failed', 401))
                 }
             } catch (err) {
                 return reject(err)
@@ -91,7 +92,7 @@ export class ConfirmationController {
                     let conf_code = transaction.confirmation_code
                     let device: Device | undefined = await this.deviceRepo.getDevice(device_id, user_id)
                     if(!device) {
-                        return reject({error: 'Device not found'})
+                        return reject(new CodedError('Device not found', 401))
                     }
                     let pub_key = device.public_key
                     let dec: Decryptor = new RSADecryptor(pub_key)

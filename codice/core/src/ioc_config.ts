@@ -49,6 +49,8 @@ container.bind<TokenConverter>(TokenConverter).to(TokenConverter);
 container.bind<Hasher>(Hasher).toConstantValue(new Hasher());
 container.bind<GeoConverter>(coreTYPES.GeoConverter).toConstantValue(new OSMGeoConverter());
 container.bind<Decryptor>(AESDecryptor).toConstantValue(new AESDecryptor())
+// RSADecryptor non è fornito da inversify perchè, siccome ogni decrittazione richiede una chiave pubblica diversa,
+// è più utile che ogni vela che ce n'è bisogno se ne crei un oggetto nuovo
 
 container.bind<MetadataRepository>(TYPES.MetadataRepository).to(MongoMetadataRepository);
 container.bind<DeviceRepository>(TYPES.DeviceRepository).to(MongoDeviceRepository);
@@ -66,3 +68,4 @@ container.bind<MetadataController>(MetadataController).to(MetadataController)
 container.bind<DevicesController>(DevicesController).to(DevicesController);
 container.bind<RequestsController>(RequestsController).to(RequestsController);
 container.bind<ConfirmationController>(ConfirmationController).to(ConfirmationController);
+

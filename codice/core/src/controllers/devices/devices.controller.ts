@@ -14,14 +14,12 @@ import {
 
 import { TYPES } from 'repositories';
 import { UUIDGenerator } from '../../services/uuid-generator/uuid-generator';
+import { CodedError } from '../../coded.error';
 
 @injectable()
 export class DevicesController {
-    constructor(
-        @inject(TYPES.DeviceRepository) private deviceRepo: DeviceRepository,
-        @inject(TYPES.EventRepository) private eventRepo: EventRepository,
-        @inject(UUIDGenerator) private uuidGen: UUIDGenerator) {
-    }
+    @inject(TYPES.DeviceRepository) private deviceRepo!: DeviceRepository
+    @inject(TYPES.EventRepository) private eventRepo!: EventRepository
 
     // the methods below should permit to edit/update/delete only the devices of the user specified in the query
 
@@ -78,14 +76,14 @@ export class DevicesController {
             try {
                 // check that the passed value is actually a device
                 if (!device) {
-                    return reject({ error: 'No data received' })
+                    return reject(new CodedError('No data received', 401))
                 }
                 if (Object.keys(device).length !== Object.keys(DeviceFields).length) {
-                    return reject({ error: 'Number of fields not correct' })
+                    return reject(new CodedError('Number of fields not correct', 401))
                 }
                 for (const field in device) {
                     if (!Object.keys(DeviceFields).includes(field)) {
-                        return reject({ error: 'Fields not correct' })
+                        return reject(new CodedError('Fields not correct', 401))
                     }
                 }
                 // it's important to take the next two values from the request params, and not from the device object found in the body, because those two values are verified in the preceding middlewares
@@ -107,14 +105,14 @@ export class DevicesController {
         return new Promise<void>(async (resolve, reject) => {
             try {
                 if (!device) {
-                    return reject({ error: 'No data received' })
+                    return reject(new CodedError('No data received', 401))
                 }
                 if (Object.keys(device).length > Object.keys(DeviceFields).length) {
-                    return reject({ error: 'Number of fields not correct' })
+                    return reject(new CodedError('Number of fields not correct', 401))
                 }
                 for (const field in device) {
                     if (!Object.keys(DeviceFields).includes(field)) {
-                        return reject({ error: 'Fields not correct' })
+                        return reject(new CodedError('Fields not correct', 401))
                     }
                 }
                 // it's important to take the next two values from the request params because those values are verified in the preceding middlewares
@@ -123,7 +121,7 @@ export class DevicesController {
                 if (device.user_id !== undefined) device.user_id = user_id
                 let result = await this.deviceRepo.editDevice(device_id, user_id, device);
                 if (result === 0) {
-                    return reject({ error: 'Device not found' })
+                    return reject(new CodedError('Device not found', 401))
                 } else {
                     return resolve();
                 }
