@@ -4,7 +4,7 @@ import * as crypto from 'crypto';
 export class RSADecryptor implements Decryptor {
     private publicKey: any
 
-    // there's no point in taking the publicKey from the environment since the key different for every device
+    // there's no point in reading the publicKey from a configuration file since the key is different for every device
     constructor(publicKey: string) {
         this.publicKey = publicKey
     }

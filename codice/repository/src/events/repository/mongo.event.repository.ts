@@ -1,5 +1,5 @@
 import { inject, injectable } from "inversify";
-import { MongoClient } from "mongodb";
+import { MongoClient, MongoClientOptions } from "mongodb";
 import { BaseRequestFilter } from "../../RequestFilter";
 import { applyQueryAndFilter } from "../../utils/applyQueryAndFilter";
 import { Event } from "../model/event";
@@ -13,10 +13,11 @@ export class MongoEventRepository implements EventRepository {
     events: any; 
     
 
-    constructor() {
+    constructor(_uri?: string, _options?: MongoClientOptions) {
         try {
-            const uri: string = process.env.MAIN_MONGODB_URI || '';
-            this.client = new MongoClient(uri);
+            const uri: string = _uri || process.env.MAIN_MONGODB_URI || ''
+            const options: MongoClientOptions = _options || JSON.parse(process.env.MAIN_MONGODB_OPTIONS || '{}') || undefined
+            this.client = new MongoClient(uri, options);
             this.client.connect((err, client) => {
                 if (err) {
                     console.log('Unable to connect to events database')

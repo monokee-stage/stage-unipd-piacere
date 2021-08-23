@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import { Collection, Db, MongoClient } from "mongodb";
+import { Collection, Db, MongoClient, MongoClientOptions } from "mongodb";
 import { controlledMongoFindOne } from "../../utils/controlledMongoFindOne";
 import { Metadata } from "../model/metadata.model";
 import { MetadataRepository } from "./metadata.repository";
@@ -10,9 +10,11 @@ export class MongoMetadataRepository implements MetadataRepository {
     private client!: MongoClient;
     private metadata: any;
 
-    constructor(){
+    constructor(_uri?: string, _options?: MongoClientOptions) {
         try {
-            this.client = new MongoClient(process.env.METADATA_MONGODB_URI || '');
+            const uri: string = _uri || process.env.METADATA_MONGODB_URI || ''
+            const options: MongoClientOptions = _options || JSON.parse(process.env.METADATA_MONGODB_OPTIONS || '{}') || undefined
+            this.client = new MongoClient(uri, options);
             this.client.connect((err, client) => {
                 if (err) {
                     console.log('Unable to connect to metadata database')

@@ -35,8 +35,6 @@ export class DevicesRoute extends Route{
 		this.deviceController = container.get<DevicesController>(DevicesController)
 	}
 
-	// the methods below should permit to edit/update/delete only the devices of the user specified in the query
-
 	private getDevices = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const user_id: string = req.params.user_id;
@@ -58,8 +56,6 @@ export class DevicesRoute extends Route{
 			}else {
 				return next(new CodedError('Device not found', 404));
 			}
-			
-			
 		} catch(err) {
 			return next(err)
 		}

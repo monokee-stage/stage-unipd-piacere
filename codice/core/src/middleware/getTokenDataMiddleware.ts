@@ -11,7 +11,7 @@ export const getTokenDataMiddleware = async (req: Request, res: Response, next: 
         const metadata: Metadata = res.locals.metaData
         const token: string = req.headers.authorization as string
         let tokenData: TokenData = await tokenConverter.getTokenData(token, metadata)
-        // should check if tokenData was retrieved correctly
+        // todo: should check if tokenData was retrieved correctly
         res.locals.tokenData = tokenData
         return next()
     } catch(err) {

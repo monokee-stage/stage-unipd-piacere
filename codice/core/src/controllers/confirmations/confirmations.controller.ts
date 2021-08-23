@@ -39,9 +39,13 @@ export class ConfirmationController {
                         timestamp: new Date() as unknown as string,
                         transaction_id: trans_id,
                     }
-                    await Promise.all([await this.transRepo.approveTransaction(trans_id), this.eventRepo.addEvent(event)])
-
-                    return resolve()
+                    const result: boolean = await this.transRepo.approveTransaction(trans_id);
+                    if (result) {
+                        await this.eventRepo.addEvent(event)
+                        return resolve()
+                    } else {
+                        return reject(new CodedError('Transaction not found', 400))
+                    }
                 } else {
                     return reject(new CodedError('Transaction approval failed', 401))
                 }
@@ -64,10 +68,15 @@ export class ConfirmationController {
                         timestamp: new Date() as unknown as string,
                         transaction_id: trans_id,
                     }
-                    await Promise.all([await this.transRepo.refuseTransaction(trans_id), this.eventRepo.addEvent(event)])
-                    return resolve()
+                    const result: boolean = await this.transRepo.refuseTransaction(trans_id);
+                    if(result){
+                        await this.eventRepo.addEvent(event)
+                        return resolve()
+                    }else{
+                        return reject(new CodedError('Transaction not found', 400))
+                    }
                 } else {
-                    return reject(new CodedError('Transaction refusal failed', 401))
+                    return reject(new CodedError('Transaction refusal failed', 500))
                 }
             } catch (err) {
                 return reject(err)
@@ -80,8 +89,7 @@ export class ConfirmationController {
             try {
                 const transaction: Transaction = await this.transRepo.getTransaction(transaction_id)
                 if (!transaction) {
-                    console.log('transaction not found')
-                    return resolve(false)
+                    return reject(new CodedError('Transaction not found', 400))
                 }
                 const ttl: number = transaction.ttl
                 const min_ttl: number = parseInt(process.env.TRANSACTION_MIN_CONFIRMATION_TTL || '30')

@@ -58,11 +58,10 @@ container.bind<EventRepository>(TYPES.EventRepository).toConstantValue(new Mongo
 container.bind<TransactionRepository>(TYPES.TransactionRepository).toConstantValue( new RedisTransactionRepository());
 container.bind<NotificationRepository>(TYPES.NotificationRepository).toConstantValue(new FirebaseNotificationRepository());
 
-// le Route non sono astratte quindi per loro non è necessario coreTYPES
-container.bind<Route>(coreTYPES.MetadataRoute).to(MetadataRoute)
-container.bind<Route>(coreTYPES.DevicesRoute).to(DevicesRoute);
-container.bind<Route>(coreTYPES.RequestsRoute).to(RequestsRoute);
-container.bind<Route>(coreTYPES.ConfirmationRoute).to(ConfirmationRoute);
+container.bind<Route>(MetadataRoute).to(MetadataRoute)
+container.bind<Route>(DevicesRoute).to(DevicesRoute);
+container.bind<Route>(RequestsRoute).to(RequestsRoute);
+container.bind<Route>(ConfirmationRoute).to(ConfirmationRoute);
 
 container.bind<MetadataController>(MetadataController).to(MetadataController)
 container.bind<DevicesController>(DevicesController).to(DevicesController);

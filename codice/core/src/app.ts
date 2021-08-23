@@ -8,7 +8,6 @@ dotenv.config();
 
 import {container} from "./ioc_config";
 import Server from './server'
-import { coreTYPES } from './types';
 
 import { errorHandlerMiddleware } from './middleware/errorHandlerMiddleware';
 import { checkTokenMiddleware } from './middleware/checkTokenMiddleware';
@@ -16,14 +15,18 @@ import { getMetadataMiddleware } from './middleware/getMetadataMiddleware';
 import { getTokenDataMiddleware } from './middleware/getTokenDataMiddleware';
 import { checkClientPermissionMiddleware } from './middleware/checkClientPermissionMiddleware';
 import { checkDeviceIdentityMiddleware } from './middleware/checkDeviceIdentityMiddleware';
+import { ConfirmationRoute } from './routes/confirmations/confirmation.route';
+import { DevicesRoute } from './routes/devices/devices.route';
+import { MetadataRoute } from './routes/metadata/metadata.route';
+import { RequestsRoute } from './routes/requests/requests.route';
 
 
 const server: Server = new Server({port: 3001,host: 'localhost'})
 
-const metadataRoute: Route = container.get<Route>(coreTYPES.MetadataRoute);
-const deviceRoute: Route = container.get<Route>(coreTYPES.DevicesRoute);
-const requestRoute: Route = container.get<Route>(coreTYPES.RequestsRoute);
-const confirmationRoute: Route = container.get<Route>(coreTYPES.ConfirmationRoute);
+const metadataRoute: Route = container.get<Route>(MetadataRoute);
+const deviceRoute: Route = container.get<Route>(DevicesRoute);
+const requestRoute: Route = container.get<Route>(RequestsRoute);
+const confirmationRoute: Route = container.get<Route>(ConfirmationRoute);
 
 
 

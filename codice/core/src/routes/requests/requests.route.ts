@@ -19,7 +19,6 @@ export class RequestsRoute extends Route {
 		this.router.get(this.basePath + '/operation/:operation_id', this.getStatus);
 	}
 
-	// maybe it'd be better to send a response to the requester before the end of the operations
 	private requestConfirmation = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const requester_id: string = req.params.user_id

@@ -1,7 +1,7 @@
 export abstract class RequestFilter {
 }
 
-// the Object.assing in BaseRequestFilter assigns "type" also, so the Object.assign in TypedRequestFilter it's useless -> fix
+// todo: the Object.assing in BaseRequestFilter assigns "type" also, so the Object.assign in TypedRequestFilter is useless -> fix
 export class BaseRequestFilter extends RequestFilter{
     order?: {
         [key: string]: 1|-1

@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import { FindCursor, MongoClient } from "mongodb";
+import { DeleteResult, FindCursor, MongoClient, MongoClientOptions, UpdateResult } from "mongodb";
 import { BaseRequestFilter } from "../../RequestFilter";
 import { applyQueryAndFilter } from "../../utils/applyQueryAndFilter";
 import { controlledMongoFindOne } from "../../utils/controlledMongoFindOne";
@@ -16,11 +16,12 @@ export class MongoDeviceRepository implements DeviceRepository {
     devices: any; 
     
 
-    // should also accept options, and try to to get them from process.env
-    constructor() {
+    // todo: should also accept options, and try to get them from process.env
+    constructor(_uri?: string, _options?: MongoClientOptions) {
         try {
-            const uri: string = process.env.MAIN_MONGODB_URI || '';
-            this.client = new MongoClient(uri);
+            const uri: string = _uri || process.env.MAIN_MONGODB_URI || ''
+            const options: MongoClientOptions = _options || JSON.parse(process.env.MAIN_MONGODB_OPTIONS || '{}') || undefined
+            this.client = new MongoClient(uri, options);
             this.client.connect( (err, client) => {
                 if (err) {
                     console.log('Unable to connect to devices database')
@@ -78,8 +79,6 @@ export class MongoDeviceRepository implements DeviceRepository {
                     }
                 }
 
-                // console.log('filter.fields')
-                // console.log(filter.fields)
                 let query: any = { user_id: user_id }
                 if (!showArchived) {
                     query.archived = { $in: [false, null] }
@@ -105,33 +104,33 @@ export class MongoDeviceRepository implements DeviceRepository {
             }
         })
     }
-    // returns the number of matched devices
-    public editDevice(device_id: string, user_id: string, device: Partial<Device>): Promise<number> {
-        return new Promise<number> (async (resolve, reject) => {
+    // returns whether the number of edited devices is > 0
+    public editDevice(device_id: string, user_id: string, device: Partial<Device>): Promise<boolean> {
+        return new Promise<boolean> (async (resolve, reject) => {
             try {
-                const result = await this.devices.updateOne({ _id: device_id, user_id: user_id }, { $set: device })
-                return resolve(result.matchedCount)
+                const result: UpdateResult = await this.devices.updateOne({ _id: device_id, user_id: user_id }, { $set: device })
+                return resolve(result.matchedCount > 0)
             } catch(err) {
                 return reject(err)
             }
         })
     }
     
-    public removeDevice(device_id: string, user_id: string): Promise<void> {
-        return new Promise<void> (async (resolve, reject) => {
+    public removeDevice(device_id: string, user_id: string): Promise<boolean> {
+        return new Promise<boolean> (async (resolve, reject) => {
             try {
-                await this.devices.deleteOne({ _id: device_id, user_id: user_id })
-                return resolve()
+                const result: DeleteResult = await this.devices.deleteOne({ _id: device_id, user_id: user_id })
+                return resolve(result.deletedCount > 0)
             } catch(err) {
                 return reject(err)
             }
         })
     }
-    public archiveDevice(device_id: string, user_id: string): Promise<void> {
-        return new Promise<void> (async (resolve, reject) => {
+    public archiveDevice(device_id: string, user_id: string): Promise<boolean> {
+        return new Promise<boolean> (async (resolve, reject) => {
             try {
-                await this.devices.updateOne({ _id: device_id, user_id: user_id }, { $set: { archived: true } })
-                return resolve()
+                const result: UpdateResult = await this.devices.updateOne({ _id: device_id, user_id: user_id }, { $set: { archived: true } })
+                return resolve(result.modifiedCount > 0)
             } catch(err) {
                 return reject(err)
             }

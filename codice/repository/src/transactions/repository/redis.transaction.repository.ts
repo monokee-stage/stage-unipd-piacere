@@ -12,7 +12,7 @@ export class RedisTransactionRepository implements TransactionRepository {
     private redis: Redis.Redis
 
 	constructor() {
-		this.redis = new Redis(undefined, undefined, {maxRetriesPerRequest: 0});
+		this.redis = new Redis();
         this.redis.connect(() => {
             console.log('redis connected')
         })
@@ -35,30 +35,38 @@ export class RedisTransactionRepository implements TransactionRepository {
             }
         })
     }
-    public approveTransaction(transaction_id: string): Promise<void> {
-        return new Promise<void> (async(resolve, reject) => {
+    public approveTransaction(transaction_id: string): Promise<boolean> {
+        return new Promise<boolean> (async(resolve, reject) => {
             try {
-                // forse Redis resetta il ttl
-                this.redis.hset(transaction_id, 'status', 'approved');
-                return resolve()
+                const trans = await this.redis.hgetall(transaction_id)
+                if(Object.keys(trans).length > 0) {
+                    await this.redis.hset(transaction_id, 'status', 'approved');
+                    return resolve(true)
+                }else{
+                    return resolve(false)
+                }
             } catch(err) {
                 return reject(err)
             }
         })
     }
-    public refuseTransaction(transaction_id: string): Promise<void> {
-        return new Promise<void> (async(resolve, reject) => {
+    public refuseTransaction(transaction_id: string): Promise<boolean> {
+        return new Promise<boolean> (async(resolve, reject) => {
             try {
-                // forse Redis resetta il ttl
-                this.redis.hset(transaction_id, 'status', 'denied');
-                return resolve()
+                const trans = await this.redis.hgetall(transaction_id)
+                if (Object.keys(trans).length > 0) {
+                    await this.redis.hset(transaction_id, 'status', 'refused');
+                    return resolve(true)
+                } else {
+                    return resolve(false)
+                }
             } catch(err) {
                 return reject(err)
             }
         })
     }
-    // should check that both the promises found a value. If not that means that the transaction expired before at least one of the transactions
-    // for security I should check that the transaction obtained was requested from the user that is asking the information now. Or maybe this this check should be done in the route
+    // todo: should check that both the promises found a value. If not that means that the transaction expired before at least one of the transactions
+    // for security I should check that the transaction obtained was requested from the user that is asking the information now. Or maybe this check should be done in the route
     public getTransaction(transaction_id: string): Promise<Transaction> {
         return new Promise<Transaction> (async(resolve, reject) => {
             try {
@@ -68,7 +76,7 @@ export class RedisTransactionRepository implements TransactionRepository {
 
                 const transaction: Transaction = unstringifyNestedFields(results[0])
                 const ttl: number = results[1]
-                // fix
+                // todo: fix
                 if (ttl !== -2) {
                     transaction._id = transaction_id
                     transaction.ttl = ttl

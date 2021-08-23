@@ -4,10 +4,8 @@ export class CodedError extends Error {
     constructor(message: string, status_code = 500) {
         super(message)
 
-        // approfondire il funzionamento di questo
-        if (Error.captureStackTrace) {
-            Error.captureStackTrace(this, CodedError)
-        }
+        // prevents that the constructor is shown in the stack trace
+        Error.captureStackTrace(this, CodedError)
 
         this.name = 'CodedError'
         this.status_code = status_code

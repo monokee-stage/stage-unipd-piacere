@@ -26,7 +26,7 @@ export const requestToFilter = (req: Request, filterType: 'BaseRequestFilter' | 
             }
         }
         // campi
-        // accetta campi da non mostrare
+        // todo: accetta campi da non mostrare
         const fields: any = req.query.fields
         if (fields) {
             if (typeof (fields) == typeof ('example_string')) {

@@ -1,5 +1,5 @@
 
-// maybe a timestamp would be useful
+// todo: maybe a timestamp would be useful
 export class NotificationData {
     transaction_id!: string
     confirmation_code!: string

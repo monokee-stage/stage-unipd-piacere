@@ -34,7 +34,7 @@ export class RequestsController {
         @inject(coreTYPES.GeoConverter) private geoConv: GeoConverter) {
     }
 
-    // maybe it'd be better to send a response to the requester before the end of the operations
+    // todo: maybe it'd be better to send a response to the requester before the end of the operations
     public requestConfirmation(user_id: string, target_id: string, data: any): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
             try {
@@ -64,6 +64,9 @@ export class RequestsController {
 
                 // get registration_tokens and convert coordinates to location
                 const results: any[] = await Promise.all(promisesToExecute)
+                if(results.length === 0) {
+                    return reject(new CodedError('Unable to get devices tokens', 400));
+                }
                 let devices_tokens: string[] = results[0]
                 let location: any = undefined;
                 if (results.length > 1) {
@@ -72,10 +75,33 @@ export class RequestsController {
                     location = results[1]
                 }
 
+                const tUuid = UUIDGenerator.getUUID()
+                const eUuid = UUIDGenerator.getUUID()
+
+                // define notification data (what the devices will get)
+                let notifData: NotificationData = {
+                    transaction_id: tUuid,
+                    confirmation_code: confCode,
+                }
+                if (data.coordinates) {
+                    notifData.coordinates = data.coordinates
+                }
+                if (location) {
+                    notifData.location = location
+                }
+                if (data.extra_info) {
+                    notifData.extra_info = data.extra_info
+                }
+
+                // send the notification to the device
+                const result = await this.notifier.sendNotification(devices_tokens, notifData)
+                if(!result) {
+                    return reject(new CodedError('Unable to send the notification to at least one of the user\'s devices', 400));
+                }
 
                 // define the transaction
                 let trans: Transaction = {
-                    _id: UUIDGenerator.getUUID(),
+                    _id: tUuid,
                     user_id: target_id,
                     requester_id: user_id,
                     request_timestamp: new Date().toJSON(),
@@ -95,7 +121,7 @@ export class RequestsController {
 
                 // define the event
                 let event: Event = {
-                    _id: UUIDGenerator.getUUID(),
+                    _id: eUuid,
                     user_id: target_id,
                     type: 'request',
                     timestamp: new Date as unknown as string,
@@ -111,32 +137,12 @@ export class RequestsController {
                     event.extra_info = data.extra_info
                 }
 
-                // define notification data (what the device will get)
-                let notifData: NotificationData = {
-                    transaction_id: trans._id,
-                    confirmation_code: confCode,
-                }
-                if (data.coordinates) {
-                    notifData.coordinates = data.coordinates
-                }
-                if (location) {
-                    notifData.location = location
-                }
-                if (data.extra_info) {
-                    notifData.extra_info = data.extra_info
-                }
-
-                // send the notification to the device
-                // prima invia notifica e verifica se invio andato a buon fine, poi salva evento e transazione
-                await this.notifier.sendNotification(devices_tokens, notifData)
-
-                // myabe check if all the devices where reached
-
                 // save event and transaction
-                Promise.all([
+                const results2 = Promise.all([
                     await this.eventsRepo.addEvent(event),
                     await this.transactionRepo.addTransaction(trans)
                 ])
+                // todo: should check if the save operations were successful
 
                 // show result to the requester
                 return resolve(trans._id)
@@ -152,7 +158,7 @@ export class RequestsController {
             try {
                 let trans: Transaction = await this.transactionRepo.getTransaction(trans_id)
                 if (Object.keys(trans).length === 0) {
-                    return reject(new CodedError('No transaction with that id', 404));
+                    return reject(new CodedError('Transaction not found', 404));
                 }
                 // verify if the one who is asking for the status is the same that issued the request
                 if (trans.requester_id === user_id) {

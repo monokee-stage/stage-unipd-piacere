@@ -38,9 +38,11 @@ export const applyQueryAndFilter = <T>(collection: Collection, query: any, filte
             if (projection) {
                 cursor = cursor.project<T>(projection as Projection<T>)
             }
+            // ordinamento
             if (baseFilter.order) {
                 cursor = cursor.sort(baseFilter.order)
             }
+            // paginazione
             if (baseFilter.pagination) {
                 console.log(baseFilter.pagination)
 

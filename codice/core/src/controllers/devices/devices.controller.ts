@@ -94,8 +94,8 @@ export class DevicesController {
                 // it's important to take the next two values from the request params, and not from the device object found in the body, because those two values are verified in the preceding middlewares
                 device.user_id = user_id
                 device._id = device_id
-                const result: number = await this.deviceRepo.editDevice(device_id, user_id, device);
-                if (result === 0) {
+                const result: boolean = await this.deviceRepo.editDevice(device_id, user_id, device);
+                if (!result) {
                     return reject({ result: 'Device not found' })
                 } else {
                     return resolve();
@@ -124,9 +124,9 @@ export class DevicesController {
 
                 if (device._id !== undefined) device._id = device_id
                 if (device.user_id !== undefined) device.user_id = user_id
-                const result: number = await this.deviceRepo.editDevice(device_id, user_id, device);
+                const result: boolean = await this.deviceRepo.editDevice(device_id, user_id, device);
                 console.log('Device controller - edit dev: ' + result);
-                if (result === 0) {
+                if (!result) {
                     return reject(new CodedError('Device not found', 401))
                 } else {
                     return resolve();
@@ -149,10 +149,12 @@ export class DevicesController {
                     timestamp: new Date() as unknown as string,
                 }
 
-                // the device is not removed from the database, it's just archived
-                await Promise.all([await this.deviceRepo.archiveDevice(device_id, user_id), this.eventRepo.addEvent(event)])
+                await this.deviceRepo.archiveDevice(device_id, user_id)
 
-                // maybe I should check if the device to be deleted was actually present. For example by reading the result of the call archiveDevice
+                // the device is not removed from the database, it's just archived
+                await Promise.all([, this.eventRepo.addEvent(event)])
+
+                // todo: maybe I should check if the device to be deleted was actually present. For example by reading the result of the call archiveDevice
                 return resolve()
             } catch (err) {
                 return reject(err)

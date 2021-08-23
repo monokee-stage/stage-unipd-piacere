@@ -36,7 +36,6 @@ export default class Server {
 		}
 	}
 
-	// to be expanded by adding a url and a method parameter
 	loadMiddleware(middleware: any, url?: string, method?: string){
 		try {
 			if (!url || !method) {

@@ -19,16 +19,20 @@ export class FirebaseNotificationRepository implements NotificationRepository {
         }
         
     }
-    sendNotification(registration_tokens: string[], data: NotificationData): Promise<void> {
-        return new Promise<void>(async (resolve, reject) => {
+    sendNotification(registration_tokens: string[], data: NotificationData): Promise<boolean> {
+        return new Promise<boolean>(async (resolve, reject) => {
             try {
                 let convData: {[key: string]: string} = stringifyNestedFields(data)
                 let message: admin.messaging.MulticastMessage = {
                     data: convData,
                     tokens: registration_tokens
                 }
-                await admin.messaging().sendMulticast(message)
-                return resolve()
+                const response: admin.messaging.BatchResponse = await admin.messaging().sendMulticast(message)
+                if(response.failureCount == 0){
+                    return resolve(true)
+                }else{
+                    return resolve(false)
+                }
             } catch (err) {
                 reject(err)
             }

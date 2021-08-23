@@ -1,12 +1,10 @@
 import {Service} from '../service'
 import * as crypto from 'crypto';
 import { injectable } from 'inversify';
-// import {Hash} from 'crypto';
 
-// there is a problem: the hash object can't be reused after digest has been called. Maybe it's better to use static methods and no attribute. Or maybe not because algoirthm may remain an attribute.
+// it's unnecessary to have a hash attribute since the crypto.Hash object has to be recreated at each hashText(...)
 @injectable()
 export class Hasher implements Service {
-    private hash!: crypto.Hash
     private algorithm: string
 
     constructor(algorithm?: string) {
@@ -16,9 +14,9 @@ export class Hasher implements Service {
     // returns the hashed string encoded in base64
     public hashText(text: string): string {
         try {
-            this.hash = crypto.createHash(this.algorithm)
-            this.hash.update(text)
-            return this.hash.digest().toString('base64')
+            const hash: crypto.Hash = crypto.createHash(this.algorithm)
+            hash.update(text)
+            return hash.digest().toString('base64')
         } catch(err) {
             throw err
         }
