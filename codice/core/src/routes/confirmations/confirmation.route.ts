@@ -19,10 +19,10 @@ export class ConfirmationRoute extends Route {
 
     private approveTransaction = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            let user_id: string = req.params.user_id
-            let trans_id: string = req.params.transaction_id
-            let device_id: string = req.query.device_id as string
-            let signed_conf_code: string = req.query.signed_conf_code as string
+            const user_id: string = req.params.user_id
+            const trans_id: string = req.params.transaction_id
+            const device_id: string = req.query.device_id as string
+            const signed_conf_code: string = req.query.signed_conf_code as string
             await this.confirmationController.approveTransaction(user_id, trans_id, device_id, signed_conf_code)
             res.json({result: 'Transaction approved'});
         } catch(err) {
@@ -31,10 +31,10 @@ export class ConfirmationRoute extends Route {
     };
     private denyTransaction = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            let user_id: string = req.params.user_id
-            let trans_id: string = req.params.transaction_id
-            let device_id: string = req.query.device_id as string
-            let signed_conf_code: string = req.query.signed_conf_code as string
+            const user_id: string = req.params.user_id
+            const trans_id: string = req.params.transaction_id
+            const device_id: string = req.query.device_id as string
+            const signed_conf_code: string = req.query.signed_conf_code as string
             await this.confirmationController.denyTransaction(user_id, trans_id, device_id, signed_conf_code)
             res.json({ result: 'Transaction refused' });
         } catch (err) {

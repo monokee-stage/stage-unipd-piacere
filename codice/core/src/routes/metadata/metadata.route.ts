@@ -22,7 +22,7 @@ export class MetadataRoute extends Route {
 
 	private getMetadata = async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			let url = await this.metadataController.getMetadata(req.params.domain_id)
+			const url: string|undefined = await this.metadataController.getMetadata(req.params.domain_id)
 			res.json({ metadata_url: url });
 		} catch (err) {
 			return next(err)

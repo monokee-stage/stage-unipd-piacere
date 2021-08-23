@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 
 import { inject } from 'inversify';
-import { DeviceRepository, TYPES } from 'repositories';
+import { Device, DeviceRepository, TYPES } from 'repositories';
 import { CodedError } from '../coded.error';
 import { container } from '../ioc_config';
 import { Decryptor } from '../services/decryptor/decryptor';
@@ -13,27 +13,27 @@ export const checkDeviceIdentityMiddleware = async (req: Request, res: Response,
         if(res.locals.verified_client_type){
             if(res.locals.verified_client_type === 'app'){
                 // se la richiesta viene dall'app verifico il dispositivo
-                let user_id = req.params.user_id
+                const user_id: string = req.params.user_id
                 if(!user_id) {
                     return next(new CodedError('User id not found', 401))
                 }
-                let claimed_id = req.params.device_id
+                const claimed_id: string = req.params.device_id
                 if(!claimed_id) {
                     return next(new CodedError('Claimed id not found', 401))
                 }
-                let signed_id = req.query.signed_device_id as string
+                const signed_id: string = req.query.signed_device_id as string
                 if(!signed_id) {
                     return next(new CodedError('Signed id not found', 401))
                 }
-                let deviceRepo = container.get<DeviceRepository>(TYPES.DeviceRepository)
-                let deviceData = await deviceRepo.getDevice(claimed_id, user_id)
+                const deviceRepo: DeviceRepository = container.get<DeviceRepository>(TYPES.DeviceRepository)
+                let deviceData: Device|undefined = await deviceRepo.getDevice(claimed_id, user_id)
                 if(!deviceData) {
                     return next(new CodedError('Device not found', 401))
                 }
                 
-                let pub_key = deviceData.public_key
-                let rsaDecryptor: Decryptor = new RSADecryptor(pub_key)
-                let decrypted = rsaDecryptor.decrypt(signed_id)
+                const pub_key: string = deviceData.public_key
+                const rsaDecryptor: Decryptor = new RSADecryptor(pub_key)
+                const decrypted: string = rsaDecryptor.decrypt(signed_id)
                 if(claimed_id && (decrypted === claimed_id) ){
                     return next()
                 }else{

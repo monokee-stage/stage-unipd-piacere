@@ -1,5 +1,5 @@
 import {Service} from '../service';
-import axios from 'axios';
+import axios, { AxiosPromise } from 'axios';
 
 import {injectable, inject} from 'inversify';
 import { TokenData } from './tokendata';
@@ -20,13 +20,13 @@ export class TokenConverter implements Service{
 	public getTokenData(token: string, metadata: Metadata): Promise<TokenData> {
 		return new Promise<TokenData>( async (resolve, reject) => {
 			try {
-				var enc_secret = metadata.core.client_secret
-				var dec_secret = this.aesDecryptor.decrypt(enc_secret, 'base64')
-				var authstring = metadata.core.client_id + ':' + dec_secret
-				var based = Buffer.from(authstring).toString('base64')
-				// var auth = 'Basic WnRZUTNWRkgyeXlLTHNjTDpBV1JESExjdzRtTmVKNzJa';
+				const enc_secret: string = metadata.core.client_secret
+				const dec_secret: string = this.aesDecryptor.decrypt(enc_secret, 'base64')
+				const authstring: string = metadata.core.client_id + ':' + dec_secret
+				const based: string = Buffer.from(authstring).toString('base64')
+				// auth = 'Basic WnRZUTNWRkgyeXlLTHNjTDpBV1JESExjdzRtTmVKNzJa';
 			
-				var response = await axios({
+				let response: any = await axios({
 					method: 'post',
 					url: metadata.introspection_endpoint,
 					data: `token=${token}&token_type_hint=access_token`,

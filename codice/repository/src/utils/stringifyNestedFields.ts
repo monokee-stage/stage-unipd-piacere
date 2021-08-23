@@ -1,7 +1,7 @@
 export const stringifyNestedFields = (obj: any): {[key: string]: string} => {
     // console.log('stringifyNestedFields')
     try {
-        var converted_obj = { ...obj };
+        let converted_obj = { ...obj };
         // console.log(converted_obj)
         for (let field in converted_obj) {
             // console.log(typeof(converted_obj[field]))

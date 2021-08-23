@@ -1,17 +1,18 @@
 import {Request, Response, NextFunction } from "express";
 import { CodedError } from "../coded.error";
+import { TokenData } from "../services/token-converter/tokendata";
 import { checkScopes } from "../utils/check-scope";
 
 export const checkTokenMiddleware = async(req: Request, res: Response, next: NextFunction) => {
     try {
-        var tokenData = res.locals.tokenData
+        const tokenData: TokenData = res.locals.tokenData
 
         // next three lines are just for development and just while I don't have a valid token
         tokenData.active = true
         tokenData.sub = req.params.user_id
         
 
-        var are_scopes_correct = true // checkScopes(req.url, req.method, tokenData.scopes)
+        const are_scopes_correct: boolean = true // checkScopes(req.url, req.method, tokenData.scopes)
 
         if(tokenData && tokenData.active === true && tokenData.sub === req.params.user_id && are_scopes_correct) {
             console.log('token check passed')

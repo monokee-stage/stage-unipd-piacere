@@ -12,20 +12,23 @@ export class RedisTransactionRepository implements TransactionRepository {
     private redis: Redis.Redis
 
 	constructor() {
-		this.redis = new Redis();
+		this.redis = new Redis(undefined, undefined, {maxRetriesPerRequest: 0});
+        this.redis.connect(() => {
+            console.log('redis connected')
+        })
 	}
 
     public addTransaction(transaction: Transaction): Promise<void> {
         return new Promise<void> (async(resolve, reject) => {
             try {
-                var obj = stringifyNestedFields(transaction)
-                var ttl = obj.ttl
+                let obj: {[key: string]: string} = stringifyNestedFields(transaction)
+                const ttl: number = obj.ttl as unknown as number
                 delete obj.ttl
                 delete obj._id
-                let result1 = await this.redis.hset(transaction._id, obj)
+                const result1: any = await this.redis.hset(transaction._id, obj)
                 console.log('redis add result')
                 console.log(result1)
-                await this.redis.expire(transaction._id, ttl as unknown as number)
+                await this.redis.expire(transaction._id, ttl)
                 return resolve()
             } catch(err) {
                 return reject(err)
@@ -59,12 +62,12 @@ export class RedisTransactionRepository implements TransactionRepository {
     public getTransaction(transaction_id: string): Promise<Transaction> {
         return new Promise<Transaction> (async(resolve, reject) => {
             try {
-                var p1 = this.redis.hgetall(transaction_id)
-                var p2 = this.redis.ttl(transaction_id)
-                var results = await Promise.all([p1, p2])
+                const p1: Promise<any> = this.redis.hgetall(transaction_id)
+                const p2: Promise<number> = this.redis.ttl(transaction_id)
+                const results: any[] = await Promise.all([p1, p2])
 
-                var transaction: Transaction = unstringifyNestedFields(results[0])
-                var ttl = results[1]
+                const transaction: Transaction = unstringifyNestedFields(results[0])
+                const ttl: number = results[1]
                 // fix
                 if (ttl !== -2) {
                     transaction._id = transaction_id

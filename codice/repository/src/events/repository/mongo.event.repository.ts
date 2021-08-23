@@ -14,19 +14,30 @@ export class MongoEventRepository implements EventRepository {
     
 
     constructor() {
-        var uri = process.env.MAIN_MONGODB_URI || '';
-        this.client = new MongoClient(uri);
-        this.client.connect();
+        try {
+            const uri: string = process.env.MAIN_MONGODB_URI || '';
+            this.client = new MongoClient(uri);
+            this.client.connect((err, client) => {
+                if (err) {
+                    console.log('Unable to connect to events database')
+                } else {
+                    console.log('Events connection succeded')
+                }
+            });
 
-        this.database = this.client.db('mfa');
-        this.events = this.database.collection('events');
+            this.database = this.client.db('mfa');
+            this.events = this.database.collection('events');
+        } catch(err) {
+            throw err
+        }
+        
     }
 
     getUserEvents(user_id: string, filter?: BaseRequestFilter): Promise<Event[]> {
         return new Promise<Event[]> (async (resolve, reject) => {
             try {
-                let query = { user_id: user_id }
-                var events = await applyQueryAndFilter<Event>(this.events, query, filter).toArray()
+                const query = { user_id: user_id }
+                let events: Event[] = await applyQueryAndFilter<Event>(this.events, query, filter).toArray()
                 return resolve(events)
             } catch(err) {
                 return reject(err)
@@ -36,8 +47,8 @@ export class MongoEventRepository implements EventRepository {
     getDeviceEvents(device_id: string, user_id: string, filter?: BaseRequestFilter): Promise<Event[]> {
         return new Promise<Event[]> (async (resolve, reject) => {
             try {
-                let query = { device_id: device_id, user_id: user_id }
-                var events = await applyQueryAndFilter<Event>(this.events, query, filter).toArray()
+                const query = { device_id: device_id, user_id: user_id }
+                let events: Event[] = await applyQueryAndFilter<Event>(this.events, query, filter).toArray()
                 return resolve(events)
             } catch(err) {
                 return reject(err)

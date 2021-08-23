@@ -7,16 +7,19 @@ import {inject, injectable} from 'inversify';
 import {DeviceRepository,
 		Device,
 		EventRepository,
-		Event} from 'repositories';
+		Event,
+		RequestFilter} from 'repositories';
 
 
 import { requestToFilter } from '../../utils/request-to-filter';
 import { DevicesController } from '../../controllers/devices/devices.controller';
 import { CodedError } from '../../coded.error';
+import { container } from '../../ioc_config';
 
 @injectable()
 export class DevicesRoute extends Route{
-	constructor(@inject(DevicesController) private deviceController: DevicesController) {
+	/*@inject(DevicesController) */private deviceController: DevicesController
+	constructor() {
 		super();
 		this.basePath = '/user/:user_id';
 		this.router = Router();
@@ -28,15 +31,17 @@ export class DevicesRoute extends Route{
 		this.router.delete(this.basePath + '/device/:device_id', this.removeDevice);
 		this.router.get(this.basePath + '/logs', this.getUserLogs);
 		this.router.get(this.basePath + '/device/:device_id/logs', this.getDeviceLogs);
+
+		this.deviceController = container.get<DevicesController>(DevicesController)
 	}
 
 	// the methods below should permit to edit/update/delete only the devices of the user specified in the query
 
 	private getDevices = async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			var user_id = req.params.user_id;
-			let filter = requestToFilter(req)
-			var devs: Device[] = await this.deviceController.getDevices(user_id, filter)
+			const user_id: string = req.params.user_id;
+			const filter: RequestFilter = requestToFilter(req)
+			let devs: Device[] = await this.deviceController.getDevices(user_id, filter)
 			res.json(devs);
 		} catch(err) {
 			return next(err)
@@ -45,10 +50,16 @@ export class DevicesRoute extends Route{
 
 	private getDevice = async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			var user_id = req.params.user_id
-			var device_id = req.params.device_id
-			var dev: Device | undefined = await this.deviceController.getDevice(user_id, device_id)
-			res.json(dev)
+			const user_id: string = req.params.user_id
+			const device_id: string = req.params.device_id
+			let dev: Device | undefined = await this.deviceController.getDevice(user_id, device_id)
+			if(dev) {
+				res.json(dev)
+			}else {
+				return next(new CodedError('Device not found', 404));
+			}
+			
+			
 		} catch(err) {
 			return next(err)
 		}
@@ -56,9 +67,9 @@ export class DevicesRoute extends Route{
 
 	private addDevice = async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			let user_id: string = req.params.user_id
-			var device: Device = req.body;
-			let device_id = await this.deviceController.addDevice(user_id, device)
+			const user_id: string = req.params.user_id
+			const device: Device = req.body;
+			let device_id: string = await this.deviceController.addDevice(user_id, device)
 			res.json({
 				result: 'Device added successfully',
 				device_id: device_id
@@ -70,13 +81,13 @@ export class DevicesRoute extends Route{
 
 	private updateDevice = async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			var device: Device = req.body;
-			var device_id = req.params.device_id;
-			var user_id = req.params.user_id;
+			let device: Device = req.body;
+			const device_id: string = req.params.device_id;
+			const user_id: string = req.params.user_id;
 			
 			device.user_id = user_id
 			device._id = device_id
-			let result = await this.deviceController.editDevice(user_id, device_id, device);
+			await this.deviceController.editDevice(user_id, device_id, device);
 			return res.json({ result: 'Edited successfully' })
 		} catch(err) {
 			return next(err)
@@ -85,11 +96,11 @@ export class DevicesRoute extends Route{
 
 	private editDevice = async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			var device: Partial<Device> = req.body;
-			var device_id = req.params.device_id;
-			var user_id = req.params.user_id;
+			let device: Partial<Device> = req.body;
+			const device_id: string = req.params.device_id;
+			const user_id: string = req.params.user_id;
 
-			let result = await this.deviceController.editDevice(user_id, device_id, device);
+			await this.deviceController.editDevice(user_id, device_id, device);
 			return res.json({ result: 'Edited successfully' });
 		} catch(err) {
 			return next(err)
@@ -98,10 +109,10 @@ export class DevicesRoute extends Route{
 
 	private removeDevice = async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			var device_id = req.params.device_id
-			var user_id = req.params.user_id;
+			const device_id: string = req.params.device_id
+			const user_id: string = req.params.user_id;
 
-			let result = await this.deviceController.removeDevice(user_id, device_id)
+			await this.deviceController.removeDevice(user_id, device_id)
 			res.json({ result: 'Removed successfully' });
 		} catch(err) {
 			return next(err)
@@ -110,9 +121,9 @@ export class DevicesRoute extends Route{
 
 	private getUserLogs = async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			var user_id = req.params.user_id
-			let filter = requestToFilter(req, 'TypedRequestFilter')
-			var events: Event[] = await this.deviceController.getUserLogs(user_id, filter)
+			const user_id: string = req.params.user_id
+			const filter: RequestFilter = requestToFilter(req, 'TypedRequestFilter')
+			let events: Event[] = await this.deviceController.getUserLogs(user_id, filter)
 			res.json(events)
 		} catch(err) {
 			return next(err)
@@ -121,10 +132,10 @@ export class DevicesRoute extends Route{
 
 	private getDeviceLogs = async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			var user_id = req.params.user_id
-			var device_id = req.params.device_id
-			let filter = requestToFilter(req, 'TypedRequestFilter')
-			var events: Event[] = await this.deviceController.getDeviceLogs(user_id, device_id, filter)
+			const user_id: string = req.params.user_id
+			const device_id: string = req.params.device_id
+			let filter: RequestFilter = requestToFilter(req, 'TypedRequestFilter')
+			let events: Event[] = await this.deviceController.getDeviceLogs(user_id, device_id, filter)
 			res.json(events)
 		} catch(err) {
 			return next(err)

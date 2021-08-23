@@ -32,8 +32,9 @@ export const applyQueryAndFilter = <T>(collection: Collection, query: any, filte
                 }
             }
 
-
-            let cursor = collection.find<T>(match)
+            console.log('just before collection.find')
+            let cursor: FindCursor<T> = collection.find<T>(match)
+            console.log('just after collection.find')
             if (projection) {
                 cursor = cursor.project<T>(projection as Projection<T>)
             }

@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import { MongoClient } from "mongodb";
+import { FindCursor, MongoClient } from "mongodb";
 import { BaseRequestFilter } from "../../RequestFilter";
 import { applyQueryAndFilter } from "../../utils/applyQueryAndFilter";
 import { controlledMongoFindOne } from "../../utils/controlledMongoFindOne";
@@ -16,16 +16,24 @@ export class MongoDeviceRepository implements DeviceRepository {
     devices: any; 
     
 
+    // should also accept options, and try to to get them from process.env
     constructor() {
         try {
-            var uri = process.env.MAIN_MONGODB_URI || '';
+            const uri: string = process.env.MAIN_MONGODB_URI || '';
             this.client = new MongoClient(uri);
-            this.client.connect();
+            this.client.connect( (err, client) => {
+                if (err) {
+                    console.log('Unable to connect to devices database')
+                } else {
+                    console.log('Devices connection succeded')
+                }
+            });
 
             this.database = this.client.db('mfa');
             this.devices = this.database.collection('devices');
+
         } catch(err) {
-            err
+            throw err
         }
     }
 
@@ -77,7 +85,8 @@ export class MongoDeviceRepository implements DeviceRepository {
                     query.archived = { $in: [false, null] }
                 }
 
-                var devs: Device[] = await applyQueryAndFilter<Device>(this.devices, query, filter).toArray();
+                let cursor: FindCursor<Device> = applyQueryAndFilter<Device>(this.devices, query, filter)
+                let devs: Device[] = await cursor.toArray();
                 return resolve(devs);
             } catch(err) {
                 return reject(err)
@@ -100,7 +109,7 @@ export class MongoDeviceRepository implements DeviceRepository {
     public editDevice(device_id: string, user_id: string, device: Partial<Device>): Promise<number> {
         return new Promise<number> (async (resolve, reject) => {
             try {
-                var result = await this.devices.updateOne({ _id: device_id }, { $set: device })
+                const result = await this.devices.updateOne({ _id: device_id, user_id: user_id }, { $set: device })
                 return resolve(result.matchedCount)
             } catch(err) {
                 return reject(err)

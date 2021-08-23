@@ -7,13 +7,13 @@ import {
     EventRepository,
     Transaction,
     TransactionRepository,
-    Event
+    Event,
+    Device
 } from 'repositories';
 
 import { TYPES } from 'repositories';
 
 import { injectable, inject } from 'inversify';
-import { RedisTransactionRepository } from 'repositories';
 import { UUIDGenerator } from '../../services/uuid-generator/uuid-generator';
 import { RandomCodeGenerator } from '../../services/random-code-generator/random-code-generator';
 import { Hasher } from '../../services/hasher/hasher';
@@ -29,8 +29,6 @@ export class RequestsController {
         @inject(TYPES.TransactionRepository) private transactionRepo: TransactionRepository,
         @inject(TYPES.EventRepository) private eventsRepo: EventRepository,
         @inject(TYPES.DeviceRepository) private devicesRepo: DeviceRepository,
-        @inject(UUIDGenerator) private uuidGen: UUIDGenerator,
-        @inject(RandomCodeGenerator) private rcGen: RandomCodeGenerator,
         @inject(Hasher) private hasher: Hasher,
         @inject(TYPES.NotificationRepository) private notifier: NotificationRepository,
         @inject(coreTYPES.GeoConverter) private geoConv: GeoConverter) {
@@ -42,14 +40,17 @@ export class RequestsController {
             try {
 
                 // generate confirmation code and hash it
-                var confCode = RandomCodeGenerator.getCode()
-                var hashedConfCode = this.hasher.hashText(confCode)
+                const confCode: string = RandomCodeGenerator.getCode()
+                const hashedConfCode: string = this.hasher.hashText(confCode)
 
-                var promisesToExecute = []
+                let promisesToExecute: Promise<any>[] = []
 
-                var p1: Promise<any> = this.devicesRepo.getDevices(target_id).then((devs): string[] => {
+                let p1: Promise<string[]> = this.devicesRepo.getDevices(target_id).then((devs): string[] => {
                     let tokens: string[] = []
                     devs.forEach((item) => {
+                        if (item.registration_token === undefined) {
+                            throw new CodedError('Some of the devices have not a registration token', 418)
+                        }
                         tokens.push(item.registration_token)
                     })
                     return tokens
@@ -57,14 +58,14 @@ export class RequestsController {
                 promisesToExecute.push(p1)
 
                 if (data.coordinates) {
-                    var p2: Promise<any> = this.geoConv.getPlaceFromCoordinates(data.coordinates.lat, data.coordinates.lon)
+                    let p2: Promise<string> = this.geoConv.getPlaceFromCoordinates(data.coordinates.lat, data.coordinates.lon)
                     promisesToExecute.push(p2)
                 }
 
                 // get registration_tokens and convert coordinates to location
-                var results = await Promise.all(promisesToExecute)
-                var devices_tokens: string[] = results[0]
-                var location = undefined;
+                const results: any[] = await Promise.all(promisesToExecute)
+                let devices_tokens: string[] = results[0]
+                let location: any = undefined;
                 if (results.length > 1) {
                     // results[1] is undefined if GeoConverter was unable to do the geocoding
                     // so from now on check location before using it
@@ -73,7 +74,7 @@ export class RequestsController {
 
 
                 // define the transaction
-                var trans: Transaction = {
+                let trans: Transaction = {
                     _id: UUIDGenerator.getUUID(),
                     user_id: target_id,
                     requester_id: user_id,
@@ -93,7 +94,7 @@ export class RequestsController {
                 }
 
                 // define the event
-                var event: Event = {
+                let event: Event = {
                     _id: UUIDGenerator.getUUID(),
                     user_id: target_id,
                     type: 'request',
@@ -111,7 +112,7 @@ export class RequestsController {
                 }
 
                 // define notification data (what the device will get)
-                var notifData: NotificationData = {
+                let notifData: NotificationData = {
                     transaction_id: trans._id,
                     confirmation_code: confCode,
                 }
@@ -149,9 +150,9 @@ export class RequestsController {
     public getStatus(user_id: string, trans_id: string): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
             try {
-                var trans: Transaction = await this.transactionRepo.getTransaction(trans_id)
+                let trans: Transaction = await this.transactionRepo.getTransaction(trans_id)
                 if (Object.keys(trans).length === 0) {
-                    return reject(new CodedError('No transaction with that id', 401));
+                    return reject(new CodedError('No transaction with that id', 404));
                 }
                 // verify if the one who is asking for the status is the same that issued the request
                 if (trans.requester_id === user_id) {

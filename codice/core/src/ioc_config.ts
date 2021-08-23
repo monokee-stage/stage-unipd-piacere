@@ -50,12 +50,12 @@ container.bind<Hasher>(Hasher).toConstantValue(new Hasher());
 container.bind<GeoConverter>(coreTYPES.GeoConverter).toConstantValue(new OSMGeoConverter());
 container.bind<Decryptor>(AESDecryptor).toConstantValue(new AESDecryptor())
 // RSADecryptor non è fornito da inversify perchè, siccome ogni decrittazione richiede una chiave pubblica diversa,
-// è più utile che ogni vela che ce n'è bisogno se ne crei un oggetto nuovo
+// è più utile che ogni volta che ce n'è bisogno se ne crei un oggetto nuovo
 
-container.bind<MetadataRepository>(TYPES.MetadataRepository).to(MongoMetadataRepository);
-container.bind<DeviceRepository>(TYPES.DeviceRepository).to(MongoDeviceRepository);
-container.bind<EventRepository>(TYPES.EventRepository).to(MongoEventRepository);
-container.bind<TransactionRepository>(TYPES.TransactionRepository).to(RedisTransactionRepository);
+container.bind<MetadataRepository>(TYPES.MetadataRepository).toConstantValue(new MongoMetadataRepository());
+container.bind<DeviceRepository>(TYPES.DeviceRepository).toConstantValue(new MongoDeviceRepository());
+container.bind<EventRepository>(TYPES.EventRepository).toConstantValue(new MongoEventRepository());
+container.bind<TransactionRepository>(TYPES.TransactionRepository).toConstantValue( new RedisTransactionRepository());
 container.bind<NotificationRepository>(TYPES.NotificationRepository).toConstantValue(new FirebaseNotificationRepository());
 
 // le Route non sono astratte quindi per loro non è necessario coreTYPES

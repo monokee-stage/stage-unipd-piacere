@@ -1,6 +1,6 @@
 export const unstringifyNestedFields = (obj: any): any => {
     try {
-        var converted_obj = { ...obj };
+        let converted_obj = { ...obj };
         for (let field in converted_obj) {
             // console.log(converted_obj[field])
             if (converted_obj[field].charAt(0) === '{') {

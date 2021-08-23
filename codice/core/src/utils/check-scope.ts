@@ -1,11 +1,11 @@
 export const checkScopes = (url: string, method: string, owned_scopes: string[]): boolean => {
     try {
-        var scopesFilePath = process.env.SCOPES_URLS_MAP_FILE_PATH || ''
-        var scopesMap = require(scopesFilePath)
+        const scopesFilePath: string = process.env.SCOPES_URLS_MAP_FILE_PATH || ''
+        const scopesMap: any = require(scopesFilePath)
 
-        var matched = false
+        let matched: boolean = false
         owned_scopes.forEach((owned_scope) => {
-            let scopeData = scopesMap[owned_scope]
+            const scopeData: any = scopesMap[owned_scope]
 
             if (scopeData) {
                 if (scopeData.method === method && url.match(scopeData.url)) {

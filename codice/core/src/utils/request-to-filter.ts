@@ -5,7 +5,7 @@ export const requestToFilter = (req: Request, filterType: 'BaseRequestFilter' | 
     try {
         let filter: any = {}
         // ordinamento
-        let order = req.query.order
+        const order: any = req.query.order
         if (order) {
             let orderArr: string[] = []
             if (typeof (order) == typeof ('example_string')) {
@@ -27,7 +27,7 @@ export const requestToFilter = (req: Request, filterType: 'BaseRequestFilter' | 
         }
         // campi
         // accetta campi da non mostrare
-        let fields = req.query.fields
+        const fields: any = req.query.fields
         if (fields) {
             if (typeof (fields) == typeof ('example_string')) {
                 filter.fields = []

@@ -18,12 +18,12 @@ import { checkClientPermissionMiddleware } from './middleware/checkClientPermiss
 import { checkDeviceIdentityMiddleware } from './middleware/checkDeviceIdentityMiddleware';
 
 
-var server = new Server({port: 3001,host: 'localhost'})
+const server: Server = new Server({port: 3001,host: 'localhost'})
 
-var metadataRoute: Route = container.get<Route>(coreTYPES.MetadataRoute);
-var deviceRoute: Route = container.get<Route>(coreTYPES.DevicesRoute);
-var requestRoute: Route = container.get<Route>(coreTYPES.RequestsRoute);
-var confirmationRoute: Route = container.get<Route>(coreTYPES.ConfirmationRoute);
+const metadataRoute: Route = container.get<Route>(coreTYPES.MetadataRoute);
+const deviceRoute: Route = container.get<Route>(coreTYPES.DevicesRoute);
+const requestRoute: Route = container.get<Route>(coreTYPES.RequestsRoute);
+const confirmationRoute: Route = container.get<Route>(coreTYPES.ConfirmationRoute);
 
 
 
@@ -37,7 +37,12 @@ server.loadMiddleware(checkTokenMiddleware);
 server.loadMiddleware(checkClientPermissionMiddleware);
 server.loadMiddleware(checkDeviceIdentityMiddleware, '/user/:user_id/device/:device_id', 'DELETE');
 
-server.loadRoute(deviceRoute);
+try {
+	server.loadRoute(deviceRoute);
+} catch(err) {
+	console.log('error')
+}
+
 server.loadRoute(requestRoute);
 server.loadRoute(confirmationRoute);
 

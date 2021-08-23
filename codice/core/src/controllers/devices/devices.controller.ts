@@ -15,21 +15,26 @@ import {
 import { TYPES } from 'repositories';
 import { UUIDGenerator } from '../../services/uuid-generator/uuid-generator';
 import { CodedError } from '../../coded.error';
+import { container } from '../../ioc_config';
 
 @injectable()
 export class DevicesController {
-    @inject(TYPES.DeviceRepository) private deviceRepo!: DeviceRepository
+    /*@inject(TYPES.DeviceRepository) */private deviceRepo!: DeviceRepository
     @inject(TYPES.EventRepository) private eventRepo!: EventRepository
+
+    constructor() {
+        this.deviceRepo = container.get<DeviceRepository>(TYPES.DeviceRepository)
+    }
 
     // the methods below should permit to edit/update/delete only the devices of the user specified in the query
 
     public getDevices(user_id: string, filter?: RequestFilter): Promise<Device[]> {
         return new Promise<Device[]>(async (resolve, reject) => {
             try {
-                var devs: Device[] = await this.deviceRepo.getDevices(user_id, filter)
+                let devs: Device[] = await this.deviceRepo.getDevices(user_id, filter)
                 return resolve(devs)
             } catch (err) {
-                return resolve(err)
+                return reject(err)
             }
         })
     }
@@ -37,7 +42,7 @@ export class DevicesController {
     public getDevice(user_id: string, device_id: string): Promise<Device | undefined> {
         return new Promise<Device | undefined>(async (resolve, reject) => {
             try {
-                var dev: Device | undefined = await this.deviceRepo.getDevice(device_id, user_id)
+                let dev: Device | undefined = await this.deviceRepo.getDevice(device_id, user_id)
                 return resolve(dev)
             } catch (err) {
                 return reject(err)
@@ -50,19 +55,19 @@ export class DevicesController {
         return new Promise<string>(async (resolve, reject) => {
             try {
                 // should check if the device is well formed
-                var dUuid = UUIDGenerator.getUUID();
+                const dUuid: string = UUIDGenerator.getUUID();
                 device._id = dUuid;
                 device.user_id = user_id
 
-                let eUuid = UUIDGenerator.getUUID()
-                let event = {
+                const eUuid: string = UUIDGenerator.getUUID()
+                const event: Event = {
                     _id: eUuid,
                     user_id: user_id,
                     device_id: dUuid,
                     type: 'device addition',
                     timestamp: new Date() as unknown as string,
                 }
-                let results = await Promise.all([this.deviceRepo.addDevice(device), this.eventRepo.addEvent(event)])
+                const results: void[] = await Promise.all([this.deviceRepo.addDevice(device), this.eventRepo.addEvent(event)])
 
                 return resolve(dUuid)
             } catch (err) {
@@ -89,7 +94,7 @@ export class DevicesController {
                 // it's important to take the next two values from the request params, and not from the device object found in the body, because those two values are verified in the preceding middlewares
                 device.user_id = user_id
                 device._id = device_id
-                let result = await this.deviceRepo.editDevice(device_id, user_id, device);
+                const result: number = await this.deviceRepo.editDevice(device_id, user_id, device);
                 if (result === 0) {
                     return reject({ result: 'Device not found' })
                 } else {
@@ -119,7 +124,8 @@ export class DevicesController {
 
                 if (device._id !== undefined) device._id = device_id
                 if (device.user_id !== undefined) device.user_id = user_id
-                let result = await this.deviceRepo.editDevice(device_id, user_id, device);
+                const result: number = await this.deviceRepo.editDevice(device_id, user_id, device);
+                console.log('Device controller - edit dev: ' + result);
                 if (result === 0) {
                     return reject(new CodedError('Device not found', 401))
                 } else {
@@ -134,8 +140,8 @@ export class DevicesController {
     public removeDevice(user_id: string, device_id: string): Promise<void> {
         return new Promise<void>(async (resolve, reject) => {
             try {
-                let eUuid = UUIDGenerator.getUUID()
-                let event = {
+                const eUuid: string = UUIDGenerator.getUUID()
+                const event: Event = {
                     _id: eUuid,
                     user_id: user_id,
                     device_id: device_id,
@@ -157,7 +163,7 @@ export class DevicesController {
     public getUserLogs(user_id: string, filter?: RequestFilter): Promise<Event[]> {
         return new Promise<Event[]>(async (resolve, reject) => {
             try {
-                var events: Event[] = await this.eventRepo.getUserEvents(user_id, filter)
+                let events: Event[] = await this.eventRepo.getUserEvents(user_id, filter)
                 return resolve(events)
             } catch (err) {
                 return reject(err)
@@ -168,7 +174,7 @@ export class DevicesController {
     public getDeviceLogs(user_id: string, device_id: string, filter?: RequestFilter): Promise<Event[]> {
         return new Promise<Event[]>(async (resolve, reject) => {
             try {
-                var events: Event[] = await this.eventRepo.getDeviceEvents(device_id, user_id, filter)
+                let events: Event[] = await this.eventRepo.getDeviceEvents(device_id, user_id, filter)
                 return resolve(events)
             } catch (err) {
                 return reject(err)

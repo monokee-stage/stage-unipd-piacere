@@ -21,18 +21,17 @@ export class ConfirmationController {
         @inject(TYPES.TransactionRepository) private transRepo: TransactionRepository,
         @inject(TYPES.EventRepository) private eventRepo: EventRepository,
         @inject(TYPES.DeviceRepository) private deviceRepo: DeviceRepository,
-        @inject(UUIDGenerator) private uuidGen: UUIDGenerator
     ) {
     }
 
     public approveTransaction(user_id: string, trans_id: string, device_id: string, signed_conf_code: string): Promise<void> {
         return new Promise<void>(async (resolve, reject) => {
             try {
-                let check = await this.checkSignatureAndTime(user_id, trans_id, device_id, signed_conf_code)
+                const check: boolean = await this.checkSignatureAndTime(user_id, trans_id, device_id, signed_conf_code)
 
                 if (check) {
-                    let uuid = UUIDGenerator.getUUID()
-                    let event: Event = {
+                    const uuid: string = UUIDGenerator.getUUID()
+                    const event: Event = {
                         _id: uuid,
                         user_id: user_id,
                         device_id: device_id,
@@ -54,10 +53,10 @@ export class ConfirmationController {
     public denyTransaction(user_id: string, trans_id: string, device_id: string, signed_conf_code: string): Promise<void> {
         return new Promise<void>(async (resolve, reject) => {
             try {
-                let check = await this.checkSignatureAndTime(user_id, trans_id, device_id, signed_conf_code)
+                const check: boolean = await this.checkSignatureAndTime(user_id, trans_id, device_id, signed_conf_code)
                 if (check) {
-                    let uuid = UUIDGenerator.getUUID()
-                    let event: Event = {
+                    const uuid: string = UUIDGenerator.getUUID()
+                    const event: Event = {
                         _id: uuid,
                         user_id: user_id,
                         device_id: device_id,
@@ -79,24 +78,23 @@ export class ConfirmationController {
     private checkSignatureAndTime = async (user_id: string, transaction_id: string, device_id: string, signed_confirmation_code: string): Promise<boolean> => {
         return new Promise<boolean>(async (resolve, reject) => {
             try {
-                var transaction: Transaction = await this.transRepo.getTransaction(transaction_id)
+                const transaction: Transaction = await this.transRepo.getTransaction(transaction_id)
                 if (!transaction) {
                     console.log('transaction not found')
                     return resolve(false)
                 }
-                var ttl = transaction.ttl
-                var min_ttl = parseInt(process.env.TRANSACTION_MIN_CONFIRMATION_TTL || '30')
+                const ttl: number = transaction.ttl
+                const min_ttl: number = parseInt(process.env.TRANSACTION_MIN_CONFIRMATION_TTL || '30')
 
-                // set ttl = tt+min_ttl
                 if (transaction.status === 'pending' && ttl > min_ttl) {
-                    let conf_code = transaction.confirmation_code
-                    let device: Device | undefined = await this.deviceRepo.getDevice(device_id, user_id)
+                    const conf_code: string = transaction.confirmation_code
+                    const device: Device | undefined = await this.deviceRepo.getDevice(device_id, user_id)
                     if(!device) {
                         return reject(new CodedError('Device not found', 401))
                     }
-                    let pub_key = device.public_key
-                    let dec: Decryptor = new RSADecryptor(pub_key)
-                    let plain_conf_code = dec.decrypt(signed_confirmation_code)
+                    const pub_key: string = device.public_key
+                    const dec: Decryptor = new RSADecryptor(pub_key)
+                    const plain_conf_code: string = dec.decrypt(signed_confirmation_code)
 
                     if (plain_conf_code === conf_code) {
                         return resolve(true)
