@@ -16,7 +16,6 @@ export class MongoDeviceRepository implements DeviceRepository {
     devices: any; 
     
     constructor(_uri?: string, _options?: MongoClientOptions) {
-        try {
             const uri: string = _uri || process.env.MAIN_MONGODB_URI || ''
             const options: MongoClientOptions = _options || JSON.parse(process.env.MAIN_MONGODB_OPTIONS || '{}') || undefined
             this.client = new MongoClient(uri, options);
@@ -30,10 +29,6 @@ export class MongoDeviceRepository implements DeviceRepository {
 
             this.database = this.client.db('mfa');
             this.devices = this.database.collection('devices');
-
-        } catch(err) {
-            throw err
-        }
     }
 
     public getDevice(device_id: string, user_id: string, showArchived: boolean = false): Promise<Device | undefined> {

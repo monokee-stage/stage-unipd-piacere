@@ -10,14 +10,9 @@ export class RSADecryptor implements Decryptor {
     }
 
     decrypt(enc_text: string, encoding: string = 'base64'): string {
-        try {
-            const encod2: any = encoding
-            const dec: Buffer = crypto.publicDecrypt(this.publicKey, Buffer.from(enc_text, encod2))
-            return dec.toString()
-        } catch(err) {
-            throw err
-        }
-        
+        const encod2: any = encoding
+        const dec: Buffer = crypto.publicDecrypt(this.publicKey, Buffer.from(enc_text, encod2))
+        return dec.toString()
     }
     
 }

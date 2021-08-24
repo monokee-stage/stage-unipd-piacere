@@ -34,7 +34,6 @@ export class RequestsController {
         @inject(coreTYPES.GeoConverter) private geoConv: GeoConverter) {
     }
 
-    // todo: maybe it'd be better to send a response to the requester before the end of the operations
     public requestConfirmation(user_id: string, target_id: string, data: any): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
             try {

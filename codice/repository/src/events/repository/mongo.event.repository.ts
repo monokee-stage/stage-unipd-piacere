@@ -14,24 +14,19 @@ export class MongoEventRepository implements EventRepository {
     
 
     constructor(_uri?: string, _options?: MongoClientOptions) {
-        try {
-            const uri: string = _uri || process.env.MAIN_MONGODB_URI || ''
-            const options: MongoClientOptions = _options || JSON.parse(process.env.MAIN_MONGODB_OPTIONS || '{}') || undefined
-            this.client = new MongoClient(uri, options);
-            this.client.connect((err, client) => {
-                if (err) {
-                    console.log('Unable to connect to events database')
-                } else {
-                    console.log('Events connection succeded')
-                }
-            });
+        const uri: string = _uri || process.env.MAIN_MONGODB_URI || ''
+        const options: MongoClientOptions = _options || JSON.parse(process.env.MAIN_MONGODB_OPTIONS || '{}') || undefined
+        this.client = new MongoClient(uri, options);
+        this.client.connect((err, client) => {
+            if (err) {
+                console.log('Unable to connect to events database')
+            } else {
+                console.log('Events connection succeded')
+            }
+        });
 
-            this.database = this.client.db('mfa');
-            this.events = this.database.collection('events');
-        } catch(err) {
-            throw err
-        }
-        
+        this.database = this.client.db('mfa');
+        this.events = this.database.collection('events');
     }
 
     getUserEvents(user_id: string, filter?: BaseRequestFilter): Promise<Event[]> {

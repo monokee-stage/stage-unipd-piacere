@@ -11,21 +11,17 @@ export class RedisTransactionRepository implements TransactionRepository {
 
     private redis: Redis.Redis
 
-	constructor(options?: Object) {
-        try {
-            this.redis = new Redis(options || JSON.parse(process.env.REDIS_OPTIONS || '{}') || undefined);
-            this.redis.connect(() => {
-                console.log('redis connected')
-            })
-        } catch(err) {
-            throw err
-        }
-	}
+    constructor(options?: Object) {
+        this.redis = new Redis(options || JSON.parse(process.env.REDIS_OPTIONS || '{}') || undefined);
+        this.redis.connect(() => {
+            console.log('redis connected')
+        })
+    }
 
     public addTransaction(transaction: Transaction): Promise<void> {
-        return new Promise<void> (async(resolve, reject) => {
+        return new Promise<void>(async (resolve, reject) => {
             try {
-                let obj: {[key: string]: string} = stringifyNestedFields(transaction)
+                let obj: { [key: string]: string } = stringifyNestedFields(transaction)
                 const ttl: number = obj.ttl as unknown as number
                 delete obj.ttl
                 delete obj._id
@@ -34,28 +30,28 @@ export class RedisTransactionRepository implements TransactionRepository {
                 // console.log(result1)
                 await this.redis.expire(transaction._id, ttl)
                 return resolve()
-            } catch(err) {
+            } catch (err) {
                 return reject(err)
             }
         })
     }
     public approveTransaction(transaction_id: string): Promise<boolean> {
-        return new Promise<boolean> (async(resolve, reject) => {
+        return new Promise<boolean>(async (resolve, reject) => {
             try {
                 const trans = await this.redis.hgetall(transaction_id)
-                if(Object.keys(trans).length > 0) {
+                if (Object.keys(trans).length > 0) {
                     await this.redis.hset(transaction_id, 'status', 'approved');
                     return resolve(true)
-                }else{
+                } else {
                     return resolve(false)
                 }
-            } catch(err) {
+            } catch (err) {
                 return reject(err)
             }
         })
     }
     public refuseTransaction(transaction_id: string): Promise<boolean> {
-        return new Promise<boolean> (async(resolve, reject) => {
+        return new Promise<boolean>(async (resolve, reject) => {
             try {
                 const trans = await this.redis.hgetall(transaction_id)
                 if (Object.keys(trans).length > 0) {
@@ -64,13 +60,13 @@ export class RedisTransactionRepository implements TransactionRepository {
                 } else {
                     return resolve(false)
                 }
-            } catch(err) {
+            } catch (err) {
                 return reject(err)
             }
         })
     }
     public getTransaction(transaction_id: string): Promise<Transaction | undefined> {
-        return new Promise<Transaction | undefined> (async(resolve, reject) => {
+        return new Promise<Transaction | undefined>(async (resolve, reject) => {
             try {
                 const p1: Promise<any> = this.redis.hgetall(transaction_id)
                 const p2: Promise<number> = this.redis.ttl(transaction_id)
@@ -79,17 +75,17 @@ export class RedisTransactionRepository implements TransactionRepository {
                 const transaction: Transaction = unstringifyNestedFields(results[0])
                 const ttl: number = results[1]
 
-                if(ttl === -2 || Object.keys(transaction).length === 0){
+                if (ttl === -2 || Object.keys(transaction).length === 0) {
                     return resolve(undefined)
-                }else{
+                } else {
                     transaction._id = transaction_id
                     transaction.ttl = ttl
                 }
                 return resolve(transaction)
-            } catch(err) {
+            } catch (err) {
                 return reject(err)
             }
         })
     }
-    
+
 }

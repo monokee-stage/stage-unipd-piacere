@@ -75,7 +75,7 @@ export class ConfirmationController {
                         return reject(new CodedError('Transaction not found', 400))
                     }
                 } else {
-                    return reject(new CodedError('Transaction refusal failed', 500))
+                    return reject(new CodedError('Signature not valid or transaction expired', 401))
                 }
             } catch (err) {
                 return reject(err)

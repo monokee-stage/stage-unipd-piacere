@@ -1,5 +1,5 @@
-import express, {Express} from 'express';
-import {Route} from './routes/route';
+import express, { Express } from 'express';
+import { Route } from './routes/route';
 
 export default class Server {
 	app: Express
@@ -19,49 +19,37 @@ export default class Server {
 	}
 
 	listen() {
-		try {
-			this.app.listen(this.port, this.host, () => {
-				console.log(`listening on http://${this.host}:${this.port}`);
-			})
-		} catch(err) {
-			throw err
-		}
+		this.app.listen(this.port, this.host, () => {
+			console.log(`listening on http://${this.host}:${this.port}`);
+		})
 	}
 
 	loadRoute(route: Route) {
-		try {
-			this.app.use('/', route.router);
-		} catch(err) {
-			throw err
+		this.app.use('/', route.router);
+	}
+
+	loadMiddleware(middleware: any, url?: string, method?: string) {
+		if (!url || !method) {
+			this.app.use(middleware);
+		} else {
+			switch (method) {
+				case 'GET':
+					this.app.get(url, middleware)
+					break
+				case 'POST':
+					this.app.post(url, middleware)
+					break
+				case 'PUT':
+					this.app.put(url, middleware)
+					break
+				case 'PATCH':
+					this.app.patch(url, middleware)
+					break
+				case 'DELETE':
+					this.app.delete(url, middleware)
+					break
+			}
 		}
 	}
 
-	loadMiddleware(middleware: any, url?: string, method?: string){
-		try {
-			if (!url || !method) {
-				this.app.use(middleware);
-			} else {
-				switch (method) {
-					case 'GET':
-						this.app.get(url, middleware)
-						break
-					case 'POST':
-						this.app.post(url, middleware)
-						break
-					case 'PUT':
-						this.app.put(url, middleware)
-						break
-					case 'PATCH':
-						this.app.patch(url, middleware)
-						break
-					case 'DELETE':
-						this.app.delete(url, middleware)
-						break
-				}
-			}
-		} catch(err) {
-			throw err
-		}
-	}
-	
 }

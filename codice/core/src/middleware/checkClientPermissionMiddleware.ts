@@ -17,7 +17,7 @@ export const checkClientPermissionMiddleware = async (req: Request, res: Respons
         // Da un file viene letta una mappa del tipo
         // url: string -> [dispositivi permessi]
         // I dispositivi permessi possono essere app, webapp e software
-        const permissions: any = require(process.env.CLIENT_TYPES_MAP_FILE_PATH || '')
+        const permissions: any = require( (process.cwd() + process.env.CLIENT_TYPES_MAP_FILE_PATH) || '')
         
         const app_id: string|undefined = metaData.app_mobile ? metaData.app_mobile.client_id : undefined
         const webapp_id: string | undefined = metaData.web_app ? metaData.web_app.client_id : undefined

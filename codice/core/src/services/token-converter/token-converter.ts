@@ -10,11 +10,7 @@ import { Decryptor } from '../decryptor/decryptor';
 
 @injectable()
 export class TokenConverter implements Service{
-	
-	constructor(
-		@inject(AESDecryptor) private aesDecryptor: Decryptor
-	) {
-	}
+	@inject(AESDecryptor) private aesDecryptor!: Decryptor
 
 	public getTokenData(token: string, metadata: Metadata): Promise<TokenData|undefined> {
 		return new Promise<TokenData | undefined>( async (resolve, reject) => {

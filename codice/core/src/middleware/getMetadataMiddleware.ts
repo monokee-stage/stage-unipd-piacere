@@ -4,6 +4,7 @@ import { TYPES } from "repositories";
 import { CodedError } from "../coded.error";
 import { container } from "../ioc_config";
 
+// gets the metadata of the specified domain and saves them in res.locals.metaData so that thay can be accessed by the following functions
 export const getMetadataMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const metadataRepo: MetadataRepository = container.get<MetadataRepository>(TYPES.MetadataRepository)

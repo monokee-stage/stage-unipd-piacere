@@ -11,14 +11,10 @@ export class ConfirmationRoute extends Route {
 	constructor(
         @inject(ConfirmationController) private confirmationController: ConfirmationController) {
         super();
-        try {
-            this.basePath = '/user/:user_id';
-            this.router = Router();
-            this.router.get(this.basePath + '/transaction/:transaction_id/approve', this.approveTransaction);
-            this.router.get(this.basePath + '/transaction/:transaction_id/deny', this.denyTransaction);
-        } catch(err) {
-            throw err
-        }
+        this.basePath = '/user/:user_id';
+        this.router = Router();
+        this.router.get(this.basePath + '/transaction/:transaction_id/approve', this.approveTransaction);
+        this.router.get(this.basePath + '/transaction/:transaction_id/deny', this.denyTransaction);
 	}
 
     private approveTransaction = async (req: Request, res: Response, next: NextFunction) => {

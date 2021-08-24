@@ -1,14 +1,14 @@
 import 'reflect-metadata';
 
-import {Route} from '../route';
-import {Router, Request, Response, NextFunction} from 'express';
-import {inject, injectable} from 'inversify';
+import { Route } from '../route';
+import { Router, Request, Response, NextFunction } from 'express';
+import { inject, injectable } from 'inversify';
 
-import {DeviceRepository,
-		Device,
-		EventRepository,
-		Event,
-		RequestFilter} from 'repositories';
+import {
+	Device,
+	Event,
+	RequestFilter
+} from 'repositories';
 
 
 import { requestToFilter } from '../../utils/request-to-filter';
@@ -17,26 +17,22 @@ import { CodedError } from '../../coded.error';
 import { container } from '../../ioc_config';
 
 @injectable()
-export class DevicesRoute extends Route{
-	/*@inject(DevicesController) */private deviceController: DevicesController
+export class DevicesRoute extends Route {
+
+	@inject(DevicesController) private deviceController!: DevicesController
+
 	constructor() {
 		super();
-		try {
-			this.basePath = '/user/:user_id';
-			this.router = Router();
-			this.router.get(this.basePath + '/devices', this.getDevices);
-			this.router.get(this.basePath + '/device/:device_id', this.getDevice);
-			this.router.put(this.basePath + '/device/:device_id', this.updateDevice);
-			this.router.patch(this.basePath + '/device/:device_id', this.editDevice);
-			this.router.post(this.basePath + '/device', this.addDevice);
-			this.router.delete(this.basePath + '/device/:device_id', this.removeDevice);
-			this.router.get(this.basePath + '/logs', this.getUserLogs);
-			this.router.get(this.basePath + '/device/:device_id/logs', this.getDeviceLogs);
-
-			this.deviceController = container.get<DevicesController>(DevicesController)
-		} catch(err) {
-			throw err
-		}
+		this.basePath = '/user/:user_id';
+		this.router = Router();
+		this.router.get(this.basePath + '/devices', this.getDevices);
+		this.router.get(this.basePath + '/device/:device_id', this.getDevice);
+		this.router.put(this.basePath + '/device/:device_id', this.updateDevice);
+		this.router.patch(this.basePath + '/device/:device_id', this.editDevice);
+		this.router.post(this.basePath + '/device', this.addDevice);
+		this.router.delete(this.basePath + '/device/:device_id', this.removeDevice);
+		this.router.get(this.basePath + '/logs', this.getUserLogs);
+		this.router.get(this.basePath + '/device/:device_id/logs', this.getDeviceLogs);
 	}
 
 	private getDevices = async (req: Request, res: Response, next: NextFunction) => {
@@ -45,7 +41,7 @@ export class DevicesRoute extends Route{
 			const filter: RequestFilter = requestToFilter(req)
 			let devs: Device[] = await this.deviceController.getDevices(user_id, filter)
 			res.json(devs);
-		} catch(err) {
+		} catch (err) {
 			return next(err)
 		}
 	}
@@ -55,12 +51,12 @@ export class DevicesRoute extends Route{
 			const user_id: string = req.params.user_id
 			const device_id: string = req.params.device_id
 			let dev: Device | undefined = await this.deviceController.getDevice(user_id, device_id)
-			if(dev) {
+			if (dev) {
 				res.json(dev)
-			}else {
+			} else {
 				return next(new CodedError('Device not found', 404));
 			}
-		} catch(err) {
+		} catch (err) {
 			return next(err)
 		}
 	};
@@ -74,7 +70,7 @@ export class DevicesRoute extends Route{
 				result: 'Device added successfully',
 				device_id: device_id
 			});
-		} catch(err) {
+		} catch (err) {
 			return next(err)
 		}
 	};
@@ -84,12 +80,12 @@ export class DevicesRoute extends Route{
 			let device: Device = req.body;
 			const device_id: string = req.params.device_id;
 			const user_id: string = req.params.user_id;
-			
+
 			device.user_id = user_id
 			device._id = device_id
 			await this.deviceController.editDevice(user_id, device_id, device);
 			return res.json({ result: 'Edited successfully' })
-		} catch(err) {
+		} catch (err) {
 			return next(err)
 		}
 	};
@@ -102,7 +98,7 @@ export class DevicesRoute extends Route{
 
 			await this.deviceController.editDevice(user_id, device_id, device);
 			return res.json({ result: 'Edited successfully' });
-		} catch(err) {
+		} catch (err) {
 			return next(err)
 		}
 	};
@@ -114,7 +110,7 @@ export class DevicesRoute extends Route{
 
 			await this.deviceController.removeDevice(user_id, device_id)
 			res.json({ result: 'Removed successfully' });
-		} catch(err) {
+		} catch (err) {
 			return next(err)
 		}
 	};
@@ -125,7 +121,7 @@ export class DevicesRoute extends Route{
 			const filter: RequestFilter = requestToFilter(req, 'TypedRequestFilter')
 			let events: Event[] = await this.deviceController.getUserLogs(user_id, filter)
 			res.json(events)
-		} catch(err) {
+		} catch (err) {
 			return next(err)
 		}
 	};
@@ -137,7 +133,7 @@ export class DevicesRoute extends Route{
 			let filter: RequestFilter = requestToFilter(req, 'TypedRequestFilter')
 			let events: Event[] = await this.deviceController.getDeviceLogs(user_id, device_id, filter)
 			res.json(events)
-		} catch(err) {
+		} catch (err) {
 			return next(err)
 		}
 	};

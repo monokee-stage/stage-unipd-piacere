@@ -6,7 +6,7 @@ import {
 import dotenv from 'dotenv';
 dotenv.config();
 
-import {container} from "./ioc_config";
+import { container } from "./ioc_config";
 import Server from './server'
 
 import { errorHandlerMiddleware } from './middleware/errorHandlerMiddleware';
@@ -21,18 +21,16 @@ import { MetadataRoute } from './routes/metadata/metadata.route';
 import { RequestsRoute } from './routes/requests/requests.route';
 
 
-const server: Server = new Server({port: 3001,host: 'localhost'})
 
-const metadataRoute: Route = container.get<Route>(MetadataRoute);
-const deviceRoute: Route = container.get<Route>(DevicesRoute);
-const requestRoute: Route = container.get<Route>(RequestsRoute);
-const confirmationRoute: Route = container.get<Route>(ConfirmationRoute);
+const server: Server = new Server({ port: 3001, host: 'localhost' })
 
-
+let metadataRoute: Route = container.get<Route>(MetadataRoute);
+let deviceRoute: Route = container.get<Route>(DevicesRoute);
+let requestRoute: Route = container.get<Route>(RequestsRoute);
+let confirmationRoute: Route = container.get<Route>(ConfirmationRoute);
 
 
 server.loadRoute(metadataRoute);
-
 server.loadMiddleware(getMetadataMiddleware);
 server.loadMiddleware(getTokenDataMiddleware);
 server.loadMiddleware(checkTokenMiddleware);
@@ -40,12 +38,8 @@ server.loadMiddleware(checkTokenMiddleware);
 server.loadMiddleware(checkClientPermissionMiddleware);
 server.loadMiddleware(checkDeviceIdentityMiddleware, '/user/:user_id/device/:device_id', 'DELETE');
 
-try {
-	server.loadRoute(deviceRoute);
-} catch(err) {
-	console.log('error')
-}
 
+server.loadRoute(deviceRoute);
 server.loadRoute(requestRoute);
 server.loadRoute(confirmationRoute);
 
@@ -53,3 +47,7 @@ server.loadMiddleware(errorHandlerMiddleware);
 
 
 server.listen();
+
+
+
+

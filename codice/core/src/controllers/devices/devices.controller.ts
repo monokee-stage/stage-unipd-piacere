@@ -25,7 +25,7 @@ export class DevicesController {
     constructor() {
     }
 
-    // the methods below should permit to edit/update/delete only the devices of the user specified in the query
+    // the methods below should permit to edit/update/delete only the devices of the user specified in the api query
 
     public getDevices(user_id: string, filter?: RequestFilter): Promise<Device[]> {
         return new Promise<Device[]>(async (resolve, reject) => {

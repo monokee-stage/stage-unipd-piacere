@@ -15,13 +15,9 @@ export class MetadataRoute extends Route {
 
 	constructor(@inject(MetadataController) private metadataController: MetadataController) {
 		super()
-		try {
-			this.basePath = '/metadata/:domain_id';
-			this.router = Router();
-			this.router.get(this.basePath, this.getMetadata);
-		} catch(err) {
-			throw err
-		}
+		this.basePath = '/metadata/:domain_id';
+		this.router = Router();
+		this.router.get(this.basePath, this.getMetadata);
 	}
 
 	private getMetadata = async (req: Request, res: Response, next: NextFunction) => {

@@ -11,34 +11,30 @@ export class MongoMetadataRepository implements MetadataRepository {
     private metadata: any;
 
     constructor(_uri?: string, _options?: MongoClientOptions) {
-        try {
-            const uri: string = _uri || process.env.METADATA_MONGODB_URI || ''
-            const options: MongoClientOptions = _options || JSON.parse(process.env.METADATA_MONGODB_OPTIONS || '{}') || undefined
-            this.client = new MongoClient(uri, options);
-            this.client.connect((err, client) => {
-                if (err) {
-                    console.log('Unable to connect to metadata database')
-                } else {
-                    console.log('Metadata connection succeded')
-                }
-            })
+        const uri: string = _uri || process.env.METADATA_MONGODB_URI || ''
+        const options: MongoClientOptions = _options || JSON.parse(process.env.METADATA_MONGODB_OPTIONS || '{}') || undefined
+        this.client = new MongoClient(uri, options);
+        this.client.connect((err, client) => {
+            if (err) {
+                console.log('Unable to connect to metadata database')
+            } else {
+                console.log('Metadata connection succeded')
+            }
+        })
 
-            const db: Db = this.client.db(process.env.METADATA_MONGODB_DB_NAME);
-            this.metadata = db.collection(process.env.METADATA_MONGODB_COLLECTION_NAME || '')
-        } catch(err) {
-            throw err
-        }
-    }   
+        const db: Db = this.client.db(process.env.METADATA_MONGODB_DB_NAME);
+        this.metadata = db.collection(process.env.METADATA_MONGODB_COLLECTION_NAME || '')
+    }
 
     getMetadata(domain_id: string): Promise<Metadata | undefined> {
-        return new Promise<Metadata | undefined> (async (resolve, reject) => {
+        return new Promise<Metadata | undefined>(async (resolve, reject) => {
             try {
-                let met: Metadata | undefined = await controlledMongoFindOne<Metadata>(this.metadata,{ _id: domain_id });
+                let met: Metadata | undefined = await controlledMongoFindOne<Metadata>(this.metadata, { _id: domain_id });
                 return resolve(met);
-            } catch(err) {
+            } catch (err) {
                 return reject(err)
             }
         })
     }
-    
+
 }
