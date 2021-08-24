@@ -14,11 +14,10 @@ export class TokenConverter implements Service{
 	constructor(
 		@inject(AESDecryptor) private aesDecryptor: Decryptor
 	) {
-
 	}
 
-	public getTokenData(token: string, metadata: Metadata): Promise<TokenData> {
-		return new Promise<TokenData>( async (resolve, reject) => {
+	public getTokenData(token: string, metadata: Metadata): Promise<TokenData|undefined> {
+		return new Promise<TokenData | undefined>( async (resolve, reject) => {
 			try {
 				const enc_secret: string = metadata.core.client_secret
 				const dec_secret: string = this.aesDecryptor.decrypt(enc_secret, 'base64')
@@ -34,8 +33,11 @@ export class TokenConverter implements Service{
 						'Authorization': 'Basic ' + based
 					}
 				})
-
-				return resolve(response.data)
+				if(response && response.data){
+					return resolve(response.data)
+				}else{
+					return resolve(undefined)
+				}
 			}catch (err) {
 				return reject(err)
 			}

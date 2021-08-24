@@ -36,7 +36,7 @@ export const requestToFilter = (req: Request, filterType: 'BaseRequestFilter' | 
                 filter.fields = fields as string[]
             }
         }
-        if (filterType === 'TypedRequestFilter' ){
+        if (filterType === 'TypedRequestFilter' && req.query.type){
             // tipo
             filter.type = req.query.type as string
         }
@@ -57,8 +57,6 @@ export const requestToFilter = (req: Request, filterType: 'BaseRequestFilter' | 
         }else {
             return new BaseRequestFilter(filter);
         }
-        
-
     } catch(err) {
         throw err
     }

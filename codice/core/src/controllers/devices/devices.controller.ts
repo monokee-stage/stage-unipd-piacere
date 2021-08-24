@@ -19,11 +19,10 @@ import { container } from '../../ioc_config';
 
 @injectable()
 export class DevicesController {
-    /*@inject(TYPES.DeviceRepository) */private deviceRepo!: DeviceRepository
+    @inject(TYPES.DeviceRepository) private deviceRepo!: DeviceRepository
     @inject(TYPES.EventRepository) private eventRepo!: EventRepository
 
     constructor() {
-        this.deviceRepo = container.get<DeviceRepository>(TYPES.DeviceRepository)
     }
 
     // the methods below should permit to edit/update/delete only the devices of the user specified in the query
@@ -67,7 +66,9 @@ export class DevicesController {
                     type: 'device addition',
                     timestamp: new Date() as unknown as string,
                 }
-                const results: void[] = await Promise.all([this.deviceRepo.addDevice(device), this.eventRepo.addEvent(event)])
+
+                await this.deviceRepo.addDevice(device)
+                await this.eventRepo.addEvent(event)
 
                 return resolve(dUuid)
             } catch (err) {
@@ -96,7 +97,7 @@ export class DevicesController {
                 device._id = device_id
                 const result: boolean = await this.deviceRepo.editDevice(device_id, user_id, device);
                 if (!result) {
-                    return reject({ result: 'Device not found' })
+                    return reject(new CodedError('Device not found', 404))
                 } else {
                     return resolve();
                 }
@@ -125,7 +126,6 @@ export class DevicesController {
                 if (device._id !== undefined) device._id = device_id
                 if (device.user_id !== undefined) device.user_id = user_id
                 const result: boolean = await this.deviceRepo.editDevice(device_id, user_id, device);
-                console.log('Device controller - edit dev: ' + result);
                 if (!result) {
                     return reject(new CodedError('Device not found', 401))
                 } else {
@@ -149,12 +149,13 @@ export class DevicesController {
                     timestamp: new Date() as unknown as string,
                 }
 
-                await this.deviceRepo.archiveDevice(device_id, user_id)
-
                 // the device is not removed from the database, it's just archived
-                await Promise.all([, this.eventRepo.addEvent(event)])
+                const result = await this.deviceRepo.archiveDevice(device_id, user_id)
+                if(result){
+                    // if a device was archived
+                    await this.eventRepo.addEvent(event)
+                }
 
-                // todo: maybe I should check if the device to be deleted was actually present. For example by reading the result of the call archiveDevice
                 return resolve()
             } catch (err) {
                 return reject(err)

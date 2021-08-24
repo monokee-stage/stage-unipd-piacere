@@ -12,11 +12,15 @@ export class RequestsRoute extends Route {
 	constructor(
 		@inject(RequestsController) private requestController: RequestsController) {
 		super();
-		this.basePath = '/user/:user_id';
-		this.router = Router();
+		try {
+			this.basePath = '/user/:user_id';
+			this.router = Router();
 
-		this.router.post(this.basePath + '/target/:target_id', this.requestConfirmation);
-		this.router.get(this.basePath + '/operation/:operation_id', this.getStatus);
+			this.router.post(this.basePath + '/target/:target_id', this.requestConfirmation);
+			this.router.get(this.basePath + '/operation/:operation_id', this.getStatus);
+		} catch(err) {
+			throw err
+		}
 	}
 
 	private requestConfirmation = async (req: Request, res: Response, next: NextFunction) => {

@@ -64,10 +64,10 @@ export class RequestsController {
 
                 // get registration_tokens and convert coordinates to location
                 const results: any[] = await Promise.all(promisesToExecute)
-                if(results.length === 0) {
-                    return reject(new CodedError('Unable to get devices tokens', 400));
-                }
                 let devices_tokens: string[] = results[0]
+                if (devices_tokens.length === 0) {
+                    return reject(new CodedError('No available devices found for the selected user', 400));
+                }
                 let location: any = undefined;
                 if (results.length > 1) {
                     // results[1] is undefined if GeoConverter was unable to do the geocoding
@@ -82,6 +82,7 @@ export class RequestsController {
                 let notifData: NotificationData = {
                     transaction_id: tUuid,
                     confirmation_code: confCode,
+                    timestamp: new Date() as unknown as string
                 }
                 if (data.coordinates) {
                     notifData.coordinates = data.coordinates
@@ -138,11 +139,9 @@ export class RequestsController {
                 }
 
                 // save event and transaction
-                const results2 = Promise.all([
-                    await this.eventsRepo.addEvent(event),
-                    await this.transactionRepo.addTransaction(trans)
-                ])
-                // todo: should check if the save operations were successful
+                // if the transaction save fails the event is not saved
+                await this.transactionRepo.addTransaction(trans)
+                await this.eventsRepo.addEvent(event)
 
                 // show result to the requester
                 return resolve(trans._id)
@@ -156,8 +155,8 @@ export class RequestsController {
     public getStatus(user_id: string, trans_id: string): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
             try {
-                let trans: Transaction = await this.transactionRepo.getTransaction(trans_id)
-                if (Object.keys(trans).length === 0) {
+                let trans: Transaction | undefined = await this.transactionRepo.getTransaction(trans_id)
+                if (!trans) {
                     return reject(new CodedError('Transaction not found', 404));
                 }
                 // verify if the one who is asking for the status is the same that issued the request

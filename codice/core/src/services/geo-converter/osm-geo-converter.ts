@@ -8,7 +8,11 @@ export class OSMGeoConverter implements GeoConverter {
 	url: string;
 
 	constructor(url?: string) {
-		this.url = url || process.env.OSM_CONV_URL || '';
+		try {
+			this.url = url || process.env.OSM_CONV_URL || '';
+		} catch(err) {
+			throw err
+		}
 	}
 
 	public async getPlaceFromCoordinates(lat: number, lon: number): Promise<string> {
@@ -23,6 +27,7 @@ export class OSMGeoConverter implements GeoConverter {
 						lon: lon
 					}
 				});
+				// returns undefined if there is no corresponding location
 				return resolve(result.data.display_name);
 			}catch (err) {
 				return reject(err);

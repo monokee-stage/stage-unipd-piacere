@@ -15,8 +15,6 @@ export class MongoDeviceRepository implements DeviceRepository {
     database: any;
     devices: any; 
     
-
-    // todo: should also accept options, and try to get them from process.env
     constructor(_uri?: string, _options?: MongoClientOptions) {
         try {
             const uri: string = _uri || process.env.MAIN_MONGODB_URI || ''

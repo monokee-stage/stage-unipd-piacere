@@ -8,7 +8,11 @@ export class Hasher implements Service {
     private algorithm: string
 
     constructor(algorithm?: string) {
-        this.algorithm = algorithm || process.env.HASHING_ALGORITHM || 'sha256'
+        try {
+            this.algorithm = algorithm || process.env.HASHING_ALGORITHM || 'sha256'
+        } catch (err) {
+            throw err
+        }
     }
 
     // returns the hashed string encoded in base64

@@ -21,18 +21,22 @@ export class DevicesRoute extends Route{
 	/*@inject(DevicesController) */private deviceController: DevicesController
 	constructor() {
 		super();
-		this.basePath = '/user/:user_id';
-		this.router = Router();
-		this.router.get(this.basePath + '/devices', this.getDevices);
-		this.router.get(this.basePath + '/device/:device_id', this.getDevice);
-		this.router.put(this.basePath + '/device/:device_id', this.updateDevice);
-		this.router.patch(this.basePath + '/device/:device_id', this.editDevice);
-		this.router.post(this.basePath + '/device', this.addDevice);
-		this.router.delete(this.basePath + '/device/:device_id', this.removeDevice);
-		this.router.get(this.basePath + '/logs', this.getUserLogs);
-		this.router.get(this.basePath + '/device/:device_id/logs', this.getDeviceLogs);
+		try {
+			this.basePath = '/user/:user_id';
+			this.router = Router();
+			this.router.get(this.basePath + '/devices', this.getDevices);
+			this.router.get(this.basePath + '/device/:device_id', this.getDevice);
+			this.router.put(this.basePath + '/device/:device_id', this.updateDevice);
+			this.router.patch(this.basePath + '/device/:device_id', this.editDevice);
+			this.router.post(this.basePath + '/device', this.addDevice);
+			this.router.delete(this.basePath + '/device/:device_id', this.removeDevice);
+			this.router.get(this.basePath + '/logs', this.getUserLogs);
+			this.router.get(this.basePath + '/device/:device_id/logs', this.getDeviceLogs);
 
-		this.deviceController = container.get<DevicesController>(DevicesController)
+			this.deviceController = container.get<DevicesController>(DevicesController)
+		} catch(err) {
+			throw err
+		}
 	}
 
 	private getDevices = async (req: Request, res: Response, next: NextFunction) => {

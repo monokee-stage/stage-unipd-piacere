@@ -1,6 +1,5 @@
 import 'reflect-metadata';
 
-import { Router, Request, Response, NextFunction } from 'express';
 import {
     Transaction, TransactionRepository,
     Event, EventRepository,
@@ -87,14 +86,15 @@ export class ConfirmationController {
     private checkSignatureAndTime = async (user_id: string, transaction_id: string, device_id: string, signed_confirmation_code: string): Promise<boolean> => {
         return new Promise<boolean>(async (resolve, reject) => {
             try {
-                const transaction: Transaction = await this.transRepo.getTransaction(transaction_id)
+                const transaction: Transaction | undefined = await this.transRepo.getTransaction(transaction_id)
                 if (!transaction) {
                     return reject(new CodedError('Transaction not found', 400))
                 }
                 const ttl: number = transaction.ttl
                 const min_ttl: number = parseInt(process.env.TRANSACTION_MIN_CONFIRMATION_TTL || '30')
+                const trans_target: string = transaction.user_id;
 
-                if (transaction.status === 'pending' && ttl > min_ttl) {
+                if (trans_target === user_id && transaction.status === 'pending' && ttl > min_ttl) {
                     const conf_code: string = transaction.confirmation_code
                     const device: Device | undefined = await this.deviceRepo.getDevice(device_id, user_id)
                     if(!device) {

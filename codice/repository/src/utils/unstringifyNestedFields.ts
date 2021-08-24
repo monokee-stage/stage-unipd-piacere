@@ -1,4 +1,4 @@
-export const unstringifyNestedFields = (obj: any): any => {
+export const unstringifyNestedFields = (obj: {[key: string]: string}): any => {
     try {
         let converted_obj = { ...obj };
         for (let field in converted_obj) {

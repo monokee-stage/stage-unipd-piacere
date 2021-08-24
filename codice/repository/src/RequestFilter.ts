@@ -1,8 +1,8 @@
 export abstract class RequestFilter {
 }
 
-// todo: the Object.assing in BaseRequestFilter assigns "type" also, so the Object.assign in TypedRequestFilter is useless -> fix
 export class BaseRequestFilter extends RequestFilter{
+    [key: string]: any
     order?: {
         [key: string]: 1|-1
     }
@@ -12,9 +12,14 @@ export class BaseRequestFilter extends RequestFilter{
         page_num: number
     }
 
-    constructor(filter: Partial<BaseRequestFilter>) {
+    constructor(filter: {[key: string]: any}) {
         super()
-        Object.assign(this, filter)
+        // assign to "this" just the required fields
+        for(const key in filter) {
+            if( Object.keys(BaseRequestFilterFields).includes(key)){
+                this[key] = filter[key]
+            }
+        }
     }
 }
 
@@ -22,7 +27,30 @@ export class TypedRequestFilter extends BaseRequestFilter {
     type?: string
 
     constructor(filter: Partial<TypedRequestFilter>) {
-        super(filter)
-        Object.assign(this, filter)
+        let dup = {...filter}
+        // remove type from the object that will be passed to super()
+        for(const key in TypedRequestFilterFields) {
+            if (dup[key]) {
+                delete dup[key]
+            }
+        }
+        super(dup)
+
+        // assign to "this" just the required fields
+        for (const key in filter) {
+            if (Object.keys(TypedRequestFilterFields).includes(key)) {
+                this[key] = filter[key]
+            }
+        }
     }
+}
+
+export enum BaseRequestFilterFields {
+    order = 'order',
+    fields = 'fields',
+    pagination = 'pagination'
+}
+
+export enum TypedRequestFilterFields {
+    type = 'type'
 }

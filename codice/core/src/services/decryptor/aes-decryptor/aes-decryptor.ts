@@ -9,9 +9,13 @@ export class AESDecryptor implements Decryptor{
 	readonly iv: string
 
 	constructor(algorithm?: string, key?: string, iv?: string) {
-		this.algorithm = algorithm || process.env.AES_ALGORITHM || 'aes-128-cbc'
-		this.key = key || process.env.AES_KEY || ''
-		this.iv = iv || process.env.AES_IV || ''
+		try {
+			this.algorithm = algorithm || process.env.AES_ALGORITHM || 'aes-128-cbc'
+			this.key = key || process.env.AES_KEY || ''
+			this.iv = iv || process.env.AES_IV || ''
+		} catch(err) {
+			throw err
+		}
 	}
 
 	public decrypt(text: string, encoding: string = 'base64'): string {

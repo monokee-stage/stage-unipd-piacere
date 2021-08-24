@@ -28,7 +28,7 @@ export class FirebaseNotificationRepository implements NotificationRepository {
                     tokens: registration_tokens
                 }
                 const response: admin.messaging.BatchResponse = await admin.messaging().sendMulticast(message)
-                if(response.failureCount == 0){
+                if(response.failureCount === 0){
                     return resolve(true)
                 }else{
                     return resolve(false)
