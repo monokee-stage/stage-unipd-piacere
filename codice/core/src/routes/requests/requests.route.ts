@@ -26,7 +26,7 @@ export class RequestsRoute extends Route {
 			const data: any = req.body
 
 			const trans_id: string = await this.requestController.requestConfirmation(requester_id, target_id, data)
-			return res.json({transaction_id: trans_id})
+			return res.status(200).json({transaction_id: trans_id})
 		} catch(err) {
 			return next(err)
 		}
@@ -37,7 +37,7 @@ export class RequestsRoute extends Route {
 			const user_id: string = req.params.user_id;
 			const trans_id: string = req.params.operation_id;
 			const status: string = await this.requestController.getStatus(user_id, trans_id)
-			return res.json({ status: status });
+			return res.status(200).json({ status: status });
 		} catch(err) {
 			return next(err)
 		}

@@ -7,6 +7,6 @@ export interface DeviceRepository extends Repository{
     getDevices(user_id: string, filter?: BaseRequestFilter): Promise<Device[]>;
     addDevice(device: Device): Promise<void>;
     editDevice(device_id: string, user_id: string, device: Partial<Device>): Promise<boolean>
-    removeDevice(device_id: string, user_id: string): Promise<boolean>;
+    // removeDevice(device_id: string, user_id: string): Promise<boolean>;
     archiveDevice(device_id: string, user_id: string): Promise<boolean>;
 }

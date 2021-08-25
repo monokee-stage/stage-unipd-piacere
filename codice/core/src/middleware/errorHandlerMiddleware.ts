@@ -8,13 +8,17 @@ export const errorHandlerMiddleware = async (err: Error, req: Request, res: Resp
     if(err instanceof CodedError) {
         let cErr: CodedError = <CodedError>err
         if (cErr.status_code === 500) {
-            return res.status(500).json('Internal error')
+            return res.status(500).json(
+                {
+                    type: 'Internal error',
+                    error: err.stack
+                })
         }else {
             return res.status(cErr.status_code).json({ error: cErr.message})
         }
     }
     return res.status(500).json({
-        type: 'internal error',
+        type: 'Internal coded error',
         error: err.stack}
         ) //.json('Internal error')
 }

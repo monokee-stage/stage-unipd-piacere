@@ -24,7 +24,7 @@ export class ConfirmationRoute extends Route {
             const device_id: string = req.query.device_id as string
             const signed_conf_code: string = req.query.signed_conf_code as string
             await this.confirmationController.approveTransaction(user_id, trans_id, device_id, signed_conf_code)
-            res.json({result: 'Transaction approved'});
+            res.status(200).json({result: 'Transaction approved'});
         } catch(err) {
             return next(err)
         }
@@ -36,7 +36,7 @@ export class ConfirmationRoute extends Route {
             const device_id: string = req.query.device_id as string
             const signed_conf_code: string = req.query.signed_conf_code as string
             await this.confirmationController.denyTransaction(user_id, trans_id, device_id, signed_conf_code)
-            res.json({ result: 'Transaction refused' });
+            res.status(200).json({ result: 'Transaction refused' });
         } catch (err) {
             return next(err)
         }

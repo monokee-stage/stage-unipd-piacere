@@ -40,7 +40,7 @@ export class DevicesRoute extends Route {
 			const user_id: string = req.params.user_id;
 			const filter: RequestFilter = requestToFilter(req)
 			let devs: Device[] = await this.deviceController.getDevices(user_id, filter)
-			res.json(devs);
+			res.status(200).json(devs);
 		} catch (err) {
 			return next(err)
 		}
@@ -52,7 +52,7 @@ export class DevicesRoute extends Route {
 			const device_id: string = req.params.device_id
 			let dev: Device | undefined = await this.deviceController.getDevice(user_id, device_id)
 			if (dev) {
-				res.json(dev)
+				res.status(200).json(dev)
 			} else {
 				return next(new CodedError('Device not found', 404));
 			}
@@ -66,7 +66,7 @@ export class DevicesRoute extends Route {
 			const user_id: string = req.params.user_id
 			const device: Device = req.body;
 			let device_id: string = await this.deviceController.addDevice(user_id, device)
-			res.json({
+			res.status(200).json({
 				result: 'Device added successfully',
 				device_id: device_id
 			});
@@ -84,7 +84,7 @@ export class DevicesRoute extends Route {
 			device.user_id = user_id
 			device._id = device_id
 			await this.deviceController.editDevice(user_id, device_id, device);
-			return res.json({ result: 'Edited successfully' })
+			return res.status(200).json({ result: 'Edited successfully' })
 		} catch (err) {
 			return next(err)
 		}
@@ -97,7 +97,7 @@ export class DevicesRoute extends Route {
 			const user_id: string = req.params.user_id;
 
 			await this.deviceController.editDevice(user_id, device_id, device);
-			return res.json({ result: 'Edited successfully' });
+			return res.status(200).json({ result: 'Edited successfully' });
 		} catch (err) {
 			return next(err)
 		}
@@ -109,7 +109,7 @@ export class DevicesRoute extends Route {
 			const user_id: string = req.params.user_id;
 
 			await this.deviceController.removeDevice(user_id, device_id)
-			res.json({ result: 'Removed successfully' });
+			res.status(200).json('Removed successfully')
 		} catch (err) {
 			return next(err)
 		}
@@ -120,7 +120,7 @@ export class DevicesRoute extends Route {
 			const user_id: string = req.params.user_id
 			const filter: RequestFilter = requestToFilter(req, 'TypedRequestFilter')
 			let events: Event[] = await this.deviceController.getUserLogs(user_id, filter)
-			res.json(events)
+			res.status(200).json(events)
 		} catch (err) {
 			return next(err)
 		}
@@ -132,7 +132,7 @@ export class DevicesRoute extends Route {
 			const device_id: string = req.params.device_id
 			let filter: RequestFilter = requestToFilter(req, 'TypedRequestFilter')
 			let events: Event[] = await this.deviceController.getDeviceLogs(user_id, device_id, filter)
-			res.json(events)
+			res.status(200).json(events)
 		} catch (err) {
 			return next(err)
 		}

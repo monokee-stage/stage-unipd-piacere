@@ -154,9 +154,11 @@ export class DevicesController {
                 if(result){
                     // if a device was archived
                     await this.eventRepo.addEvent(event)
-                }
 
-                return resolve()
+                    return resolve()
+                }else{
+                    return reject(new CodedError('Device not found', 401))
+                }
             } catch (err) {
                 return reject(err)
             }

@@ -1,8 +1,9 @@
 import { injectable } from "inversify";
-import { DeleteResult, FindCursor, MongoClient, MongoClientOptions, UpdateResult } from "mongodb";
+import { DeleteResult, FindCursor, MongoClient, MongoClientOptions, UpdateResult, Document } from "mongodb";
 import { BaseRequestFilter } from "../../RequestFilter";
 import { applyQueryAndFilter } from "../../utils/applyQueryAndFilter";
 import { controlledMongoFindOne } from "../../utils/controlledMongoFindOne";
+import { controlledMongoUpdateOne } from "../../utils/controlledMongoUpdateOne";
 import { Device, DeviceFields } from "../model/device";
 import { DeviceRepository } from "./device.repository";
 /*
@@ -101,14 +102,14 @@ export class MongoDeviceRepository implements DeviceRepository {
     public editDevice(device_id: string, user_id: string, device: Partial<Device>): Promise<boolean> {
         return new Promise<boolean> (async (resolve, reject) => {
             try {
-                const result: UpdateResult = await this.devices.updateOne({ _id: device_id, user_id: user_id }, { $set: device })
-                return resolve(result.matchedCount > 0)
+                const result: Document|UpdateResult = await controlledMongoUpdateOne(this.devices, { _id: device_id, user_id: user_id }, { $set: device })
+                return resolve(result.matchedCount === 1)
             } catch(err) {
                 return reject(err)
             }
         })
     }
-    
+    /*
     public removeDevice(device_id: string, user_id: string): Promise<boolean> {
         return new Promise<boolean> (async (resolve, reject) => {
             try {
@@ -118,12 +119,14 @@ export class MongoDeviceRepository implements DeviceRepository {
                 return reject(err)
             }
         })
-    }
+    }*/
+
     public archiveDevice(device_id: string, user_id: string): Promise<boolean> {
         return new Promise<boolean> (async (resolve, reject) => {
             try {
-                const result: UpdateResult = await this.devices.updateOne({ _id: device_id, user_id: user_id }, { $set: { archived: true } })
-                return resolve(result.modifiedCount > 0)
+                // const result: UpdateResult = await this.devices.updateOne({ _id: device_id, user_id: user_id }, { $set: { archived: true } })
+                const result = await controlledMongoUpdateOne(this.devices, {_id: device_id, user_id: user_id }, { $set: { archived: true } })
+                return resolve(result.modifiedCount === 1)
             } catch(err) {
                 return reject(err)
             }
