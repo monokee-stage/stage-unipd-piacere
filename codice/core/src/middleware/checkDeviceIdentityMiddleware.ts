@@ -15,20 +15,20 @@ export const checkDeviceIdentityMiddleware = async (req: Request, res: Response,
                 // se la richiesta viene dall'app verifico il dispositivo
                 const user_id: string = req.params.user_id
                 if(!user_id) {
-                    return next(new CodedError('User id not found', 401))
+                    return next(new CodedError('User id not found', 404))
                 }
                 const claimed_id: string = req.params.device_id
                 if(!claimed_id) {
-                    return next(new CodedError('Claimed id not found', 401))
+                    return next(new CodedError('Claimed id not found', 404))
                 }
                 const signed_id: string = req.query.signed_device_id as string
                 if(!signed_id) {
-                    return next(new CodedError('Signed id not found', 401))
+                    return next(new CodedError('Signed id not found', 404))
                 }
                 const deviceRepo: DeviceRepository = container.get<DeviceRepository>(TYPES.DeviceRepository)
                 let deviceData: Device|undefined = await deviceRepo.getDevice(claimed_id, user_id)
                 if(!deviceData) {
-                    return next(new CodedError('Device not found', 401))
+                    return next(new CodedError('Device not found', 404))
                 }
                 
                 const pub_key: string = deviceData.public_key

@@ -84,6 +84,8 @@ export class DevicesController {
                 if (!device) {
                     return reject(new CodedError('No data received', 401))
                 }
+                console.log(`update device`)
+                console.log(device)
                 if (Object.keys(device).length !== Object.keys(DeviceFields).length) {
                     return reject(new CodedError('Number of fields not correct', 401))
                 }
@@ -113,7 +115,9 @@ export class DevicesController {
                 if (!device) {
                     return reject(new CodedError('No data received', 401))
                 }
-                if (Object.keys(device).length > Object.keys(DeviceFields).length) {
+                console.log(`edit device`)
+                console.log(device)
+                if (Object.keys(device).length > Object.keys(DeviceFields).length || Object.keys(device).length === 0) {
                     return reject(new CodedError('Number of fields not correct', 401))
                 }
                 for (const field in device) {
@@ -127,7 +131,7 @@ export class DevicesController {
                 if (device.user_id !== undefined) device.user_id = user_id
                 const result: boolean = await this.deviceRepo.editDevice(device_id, user_id, device);
                 if (!result) {
-                    return reject(new CodedError('Device not found', 401))
+                    return reject(new CodedError('Device not found', 404))
                 } else {
                     return resolve();
                 }
@@ -157,7 +161,7 @@ export class DevicesController {
 
                     return resolve()
                 }else{
-                    return reject(new CodedError('Device not found', 401))
+                    return reject(new CodedError('Device not found', 404))
                 }
             } catch (err) {
                 return reject(err)

@@ -43,7 +43,7 @@ export class ConfirmationController {
                         await this.eventRepo.addEvent(event)
                         return resolve()
                     } else {
-                        return reject(new CodedError('Transaction not found', 400))
+                        return reject(new CodedError('Transaction not found', 404))
                     }
                 } else {
                     return reject(new CodedError('Transaction approval failed', 401))
@@ -72,7 +72,7 @@ export class ConfirmationController {
                         await this.eventRepo.addEvent(event)
                         return resolve()
                     }else{
-                        return reject(new CodedError('Transaction not found', 400))
+                        return reject(new CodedError('Transaction not found', 404))
                     }
                 } else {
                     return reject(new CodedError('Signature not valid or transaction expired', 401))
@@ -88,7 +88,7 @@ export class ConfirmationController {
             try {
                 const transaction: Transaction | undefined = await this.transRepo.getTransaction(transaction_id)
                 if (!transaction) {
-                    return reject(new CodedError('Transaction not found', 400))
+                    return reject(new CodedError('Transaction not found', 404))
                 }
                 const ttl: number = transaction.ttl
                 const min_ttl: number = parseInt(process.env.TRANSACTION_MIN_CONFIRMATION_TTL || '30')
@@ -98,7 +98,7 @@ export class ConfirmationController {
                     const conf_code: string = transaction.confirmation_code
                     const device: Device | undefined = await this.deviceRepo.getDevice(device_id, user_id)
                     if(!device) {
-                        return reject(new CodedError('Device not found', 401))
+                        return reject(new CodedError('Device not found', 404))
                     }
                     const pub_key: string = device.public_key
                     const dec: Decryptor = new RSADecryptor(pub_key)
