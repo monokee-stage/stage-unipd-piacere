@@ -1,8 +1,10 @@
 import { Collection, FindCursor, Projection } from "mongodb";
-import { BaseRequestFilter, RequestFilter, TypedRequestFilter } from "../RequestFilter";
+import { BaseRequestFilter, BaseRequestFilterFields, RequestFilter, TypedRequestFilter } from "../RequestFilter";
 
 // T must be the type of the elements in collection. It must not be an array of that type
-export const applyQueryAndFilter = <T>(collection: Collection, query: any, filter?: RequestFilter): FindCursor<T> => {
+export const applyQueryAndFilter = <T>(collection: Collection, query: any, filter?: BaseRequestFilter): FindCursor<T> => {
+    console.log('filter: ')
+    console.log(filter)
     if (!filter) {
         return collection.find<T>(query);
     }
@@ -10,42 +12,48 @@ export const applyQueryAndFilter = <T>(collection: Collection, query: any, filte
     let match = query
 
     if (<TypedRequestFilter>filter) {
-        let typedFilter: TypedRequestFilter = filter as TypedRequestFilter
+        let typedFilter: TypedRequestFilter = new TypedRequestFilter(filter)
         // tipo
-        if (typedFilter.type) {
-            match.type = typedFilter.type
+        let type: string | undefined = typedFilter.getType()
+        if (type) {
+            match.type = type
         }
     }
     if (<BaseRequestFilter>filter) {
-        let baseFilter: BaseRequestFilter = filter as BaseRequestFilter
         // campi
         let projection: { [key: string]: 1 | 0 } = {}
-        if (baseFilter.fields) {
-            baseFilter.fields.forEach((item) => {
-                projection[item] = 1
+        let fields: string[] = filter.getFields()
+        let fieldsInclusion: boolean|undefined = filter.getFieldsInclusion()
+        if (fields && fields.length > 0) {
+            fields.forEach((item: string) => {
+                projection[item] = fieldsInclusion === true ? 1 : 0
             })
-            if (!baseFilter.fields.includes('_id')) {
-                projection._id = 0
+            // the clients expects _id to not be shown but mongodb shows _id by default: so specify to not show it
+            if (!fields.includes('_id') && fieldsInclusion === true) {
+                projection['_id'] = 0
             }
         }
+        
 
-        console.log('just before collection.find')
         let cursor: FindCursor<T> = collection.find<T>(match)
-        console.log('just after collection.find')
         if (projection) {
+            console.log('projection')
+            console.log(projection)
             cursor = cursor.project<T>(projection as Projection<T>)
         }
         // ordinamento
-        if (baseFilter.order) {
-            cursor = cursor.sort(baseFilter.order)
+        let sorting = filter.getSorting()
+        if (sorting && Object.keys(sorting).length > 0) {
+            cursor = cursor.sort(sorting)
         }
         // paginazione
-        if (baseFilter.pagination) {
-            console.log(baseFilter.pagination)
+        let pagination = filter.getPagination()
+        if (pagination) {
+            console.log(pagination)
 
             cursor = cursor
-                .skip(baseFilter.pagination.page_num * baseFilter.pagination.elements_num)
-                .limit(baseFilter.pagination.elements_num)
+                .skip(pagination.page * pagination.size)
+                .limit(pagination.size)
         }
 
         return cursor

@@ -51,27 +51,21 @@ export class MongoDeviceRepository implements DeviceRepository {
             try {
                 console.log('repo getDevices received filter')
                 console.log(filter)
-                // if filter fields not specified specify all except archived
-                if (!filter) {
-                    filter = new BaseRequestFilter({})
+                if(!filter) {
+                    filter = new BaseRequestFilter()
                 }
-                if (!filter.fields) {
-                    filter.fields = []
-                }
-
-                // remove archived from the filters, in case the client inserted it 
-                filter.fields = filter.fields.filter((i) => {
-                    return i !== 'archived'
-                })
-
-                if (filter.fields.length === 0) {
-                    // select all fields except archived (which is not a field of Device)
-                    for (const field in DeviceFields) {
-                        if (!filter?.fields?.includes(field)) {
-                            filter?.fields?.push(field)
-                        }
+                if ((filter.getFields().includes('archived') && filter.getFieldsInclusion() === true) 
+                    || (!filter.getFields().includes('archived') && filter.getFieldsInclusion() === false)) {
+                    console.log('before')
+                    console.log(filter)
+                    filter.setFieldProjection('archived', false)
+                    if(filter.getFields().length === 0) {
+                        filter.setFieldProjection('archived', false)
                     }
+                    console.log('after')
+                    console.log(filter)
                 }
+                
 
                 let query: any = { user_id: user_id }
                 if (!showArchived) {

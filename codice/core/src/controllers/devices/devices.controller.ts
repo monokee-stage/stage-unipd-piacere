@@ -9,7 +9,9 @@ import {
     EventRepository,
     Event,
     RequestFilter,
-    DeviceFields
+    DeviceFields,
+    BaseRequestFilter,
+    TypedRequestFilter
 } from 'repositories';
 
 import { TYPES } from 'repositories';
@@ -27,7 +29,7 @@ export class DevicesController {
 
     // the methods below should permit to edit/update/delete only the devices of the user specified in the api query
 
-    public getDevices(user_id: string, filter?: RequestFilter): Promise<Device[]> {
+    public getDevices(user_id: string, filter?: BaseRequestFilter): Promise<Device[]> {
         return new Promise<Device[]>(async (resolve, reject) => {
             try {
                 let devs: Device[] = await this.deviceRepo.getDevices(user_id, filter)
@@ -169,7 +171,7 @@ export class DevicesController {
         })
     }
 
-    public getUserLogs(user_id: string, filter?: RequestFilter): Promise<Event[]> {
+    public getUserLogs(user_id: string, filter?: TypedRequestFilter): Promise<Event[]> {
         return new Promise<Event[]>(async (resolve, reject) => {
             try {
                 let events: Event[] = await this.eventRepo.getUserEvents(user_id, filter)
@@ -180,7 +182,7 @@ export class DevicesController {
         })
     }
 
-    public getDeviceLogs(user_id: string, device_id: string, filter?: RequestFilter): Promise<Event[]> {
+    public getDeviceLogs(user_id: string, device_id: string, filter?: TypedRequestFilter): Promise<Event[]> {
         return new Promise<Event[]>(async (resolve, reject) => {
             try {
                 let events: Event[] = await this.eventRepo.getDeviceEvents(device_id, user_id, filter)

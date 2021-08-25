@@ -5,9 +5,11 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { inject, injectable } from 'inversify';
 
 import {
+	BaseRequestFilter,
 	Device,
 	Event,
-	RequestFilter
+	RequestFilter,
+	TypedRequestFilter
 } from 'repositories';
 
 
@@ -41,7 +43,9 @@ export class DevicesRoute extends Route {
 			if (!user_id) {
 				return next(new CodedError('User id not provided', 400))
 			}
-			const filter: RequestFilter = requestToFilter(req)
+			const filter: BaseRequestFilter = requestToFilter(req)
+			console.log('devices routes created filter')
+			console.log(filter)
 			let devs: Device[] = await this.deviceController.getDevices(user_id, filter)
 			res.status(200).json(devs);
 		} catch (err) {
@@ -158,7 +162,7 @@ export class DevicesRoute extends Route {
 				return next(new CodedError('User id not provided', 400))
 			}
 			const filter: RequestFilter = requestToFilter(req, 'TypedRequestFilter')
-			let events: Event[] = await this.deviceController.getUserLogs(user_id, filter)
+			let events: Event[] = await this.deviceController.getUserLogs(user_id, filter as TypedRequestFilter)
 			res.status(200).json(events)
 		} catch (err) {
 			return next(err)
@@ -176,7 +180,7 @@ export class DevicesRoute extends Route {
 				return next(new CodedError('Device id not provided', 400))
 			}
 			let filter: RequestFilter = requestToFilter(req, 'TypedRequestFilter')
-			let events: Event[] = await this.deviceController.getDeviceLogs(user_id, device_id, filter)
+			let events: Event[] = await this.deviceController.getDeviceLogs(user_id, device_id, filter as TypedRequestFilter)
 			res.status(200).json(events)
 		} catch (err) {
 			return next(err)

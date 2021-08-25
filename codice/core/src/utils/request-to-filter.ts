@@ -1,55 +1,87 @@
 import { Request } from 'express';
 import { RequestFilter, BaseRequestFilter, TypedRequestFilter } from 'repositories'
+import { CodedError } from '../coded.error';
 
-export const requestToFilter = (req: Request, filterType: 'BaseRequestFilter' | 'TypedRequestFilter' = 'BaseRequestFilter'): RequestFilter => {
-    let filter: any = {}
+export const requestToFilter = (req: Request, filterType: 'BaseRequestFilter' | 'TypedRequestFilter' = 'BaseRequestFilter'): BaseRequestFilter => {
+    let filter: BaseRequestFilter
+    if(filterType === 'BaseRequestFilter') {
+        filter = new BaseRequestFilter()
+    }else {
+        filter = new TypedRequestFilter()
+    }
+
     // ordinamento
-    const order: any = req.query.order
+    const order: any = req.query.sort
     if (order) {
         let orderArr: string[] = []
-        if (typeof (order) == typeof ('example_string')) {
-            orderArr.push(order as string)
-        } else if (typeof (order) == typeof (['a', 'b'])) {
-            orderArr = order as string[]
+        if (typeof (order) === 'string') {
+            orderArr = order.split(',')
+        } else if (typeof (order) === 'object') {
+            order.forEach((item: string, index: number) => {
+                item.split(',').forEach((s: string) => {
+                    orderArr.push(s)
+                })
+            })
         }
+
         if (orderArr.length > 0) {
-            let orderObj: { [key: string]: any } = {}
             orderArr.forEach((item) => {
-                if (item[0] == '-') {
-                    orderObj[item.split('-')[1]] = -1
+                if (item[0] === '-') {
+                    filter.setSorting(item.split('-')[1], -1)
                 } else {
-                    orderObj[item] = 1
+                    filter.setSorting(item, +1)
                 }
             })
-            filter.order = orderObj
         }
     }
     // campi
-    // todo: accetta campi da non mostrare
     const fields: any = req.query.fields
-    if (fields) {
-        if (typeof (fields) == typeof ('example_string')) {
-            filter.fields = []
-            filter.fields.push(fields as string)
-        } else if (typeof (fields) == typeof (['a', 'b'])) {
-            filter.fields = fields as string[]
-        }
+    let fieldsArr: string[] = []
+    if (typeof (fields) === 'string') {
+        fieldsArr = fields.split(',')
+    } else if (typeof (fields) === 'object') {
+        fields.forEach((item: string, index: number) => {
+            item.split(',').forEach((s: string) => {
+                fieldsArr.push(s)
+            })
+        })
     }
-    if (filterType === 'TypedRequestFilter' && req.query.type) {
-        // tipo
-        filter.type = req.query.type as string
+    if (fieldsArr.length > 0) {
+        fieldsArr.forEach((item) => {
+            try {
+                if (item[0] === '-') {
+                    filter.setFieldProjection(item.split('-')[1], false)
+                } else {
+                    filter.setFieldProjection(item, true)
+                }
+            } catch(err) {
+                console.log('post error filter')
+                console.log(filter)
+                throw new CodedError('Opposite inclusion types on different items not permitted', 400)
+            }
+        })
     }
+    console.log('request to filter filter after setFieldProjection')
+    
 
     // paginazione
     // accepting the presence of just "elements_num", implying that the page number is 0
-    if (req.query.elements_num) {
-        let pageNum: number = +(req.query.page_num || '0')
-        let paginationObj = {
-            page_num: pageNum >= 0 ? pageNum : 0,
-            elements_num: +req.query.elements_num
-        }
-        filter.pagination = paginationObj
+    if (req.query.size) {
+        
+        let pageNum: number = +(req.query.page || '0')
+        let page: number = pageNum >= 0 ? pageNum : 0
+        let size: number = +(req.query.size || '0');
+        filter.setPagination(page, size)
+
     }
+
+    // tipo
+    if (filterType === 'TypedRequestFilter' && req.query.type) {
+        
+        (filter as TypedRequestFilter).setType(req.query.type as string)
+    }
+
+    
 
     if (filterType === 'TypedRequestFilter') {
         return new TypedRequestFilter(filter);
