@@ -9,10 +9,10 @@ import { RSADecryptor } from '../services/decryptor/rsa-decryptor/rsa-decryptor'
 
 export const checkDeviceIdentityMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        // controllo che sia stata attuata la verifica del tipo di client
+        // check that the client type was verifies
         if(res.locals.verified_client_type){
             if(res.locals.verified_client_type === 'app'){
-                // se la richiesta viene dall'app verifico il dispositivo
+                // if the requests comes from an app check the device identity
                 const user_id: string = req.params.user_id
                 if(!user_id) {
                     return next(new CodedError('User id not found', 404))

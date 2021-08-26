@@ -55,13 +55,10 @@ export const requestToFilter = (req: Request, filterType: 'BaseRequestFilter' | 
                     filter.setFieldProjection(item, true)
                 }
             } catch(err) {
-                console.log('post error filter')
-                console.log(filter)
                 throw new CodedError('Opposite inclusion types on different items not permitted', 400)
             }
         })
     }
-    console.log('request to filter filter after setFieldProjection')
     
 
     // paginazione

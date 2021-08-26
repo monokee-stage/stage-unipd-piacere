@@ -6,13 +6,12 @@ import { checkScopes } from "../utils/check-scope";
 export const checkTokenMiddleware = async(req: Request, res: Response, next: NextFunction) => {
     try {
         const tokenData: TokenData = res.locals.tokenData
-
-        // next three lines are just for development and just while I don't have a valid token
-        tokenData.active = true
-        tokenData.sub = req.params.user_id
+        // next two lines are just for development and just while I don't have a valid token
+        // tokenData.active = true
+        // tokenData.sub = req.params.user_id
         
 
-        const are_scopes_correct: boolean = true // checkScopes(req.url, req.method, tokenData.scopes)
+        const are_scopes_correct: boolean = tokenData.scope ? checkScopes(req.url, req.method, tokenData.scope) : false
 
         if(tokenData && tokenData.active === true && tokenData.sub === req.params.user_id && are_scopes_correct) {
             console.log('token check passed')

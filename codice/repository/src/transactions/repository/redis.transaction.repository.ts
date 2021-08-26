@@ -12,9 +12,10 @@ export class RedisTransactionRepository implements TransactionRepository {
     private redis: Redis.Redis
 
     constructor(options?: Object) {
-        this.redis = new Redis(options || JSON.parse(process.env.REDIS_OPTIONS || '{}') || undefined);
+        const opts: any = options || JSON.parse(process.env.REDIS_OPTIONS || '{}') || undefined
+        this.redis = new Redis(opts);
         this.redis.connect(() => {
-            console.log('redis connected')
+            console.log(`redis connected on host: ${opts.host}`)
         })
     }
 
@@ -26,8 +27,6 @@ export class RedisTransactionRepository implements TransactionRepository {
                 delete obj.ttl
                 delete obj._id
                 const result1: any = await this.redis.hset(transaction._id, obj)
-                // console.log('redis add result')
-                // console.log(result1)
                 await this.redis.expire(transaction._id, ttl)
                 return resolve()
             } catch (err) {

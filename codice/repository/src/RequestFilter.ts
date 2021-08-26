@@ -51,17 +51,12 @@ export class BaseRequestFilter extends RequestFilter{
     }
 
     public setFieldProjection(field: string, inclusion: boolean): void {
-        console.log('this.fields')
-        console.log(this.fields)
         if(this.fields.length === 0) {
             // if array empty add item and set the inclusion
             if(!this.fields.includes(field)){
                 this.fields.push(field)
                 this.fieldsInclusion = inclusion
             }
-            
-            console.log('this')
-            console.log(this)
         }else {
             // if array is not empty you can add items maintaining the same inclusion type
             // and you can remove a previously added element

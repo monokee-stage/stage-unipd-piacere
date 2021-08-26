@@ -22,7 +22,7 @@ import { RequestsRoute } from './routes/requests/requests.route';
 
 
 
-const server: Server = new Server({ port: 3001, host: 'localhost' })
+const server: Server = new Server()
 
 let metadataRoute: Route = container.get<Route>(MetadataRoute);
 let deviceRoute: Route = container.get<Route>(DevicesRoute);
@@ -33,11 +33,13 @@ let confirmationRoute: Route = container.get<Route>(ConfirmationRoute);
 server.loadRoute(metadataRoute);
 server.loadMiddleware(getMetadataMiddleware);
 server.loadMiddleware(getTokenDataMiddleware);
-server.loadMiddleware(checkTokenMiddleware);
+// this middleware needs to be bound to a url because it requires the user_id parameter
+server.loadMiddleware(checkTokenMiddleware, '/user/:user_id');
+
 
 server.loadMiddleware(checkClientPermissionMiddleware);
 // removed just for development
-// server.loadMiddleware(checkDeviceIdentityMiddleware, '/user/:user_id/device/:device_id', 'DELETE');
+server.loadMiddleware(checkDeviceIdentityMiddleware, '/user/:user_id/device/:device_id', 'DELETE');
 
 
 server.loadRoute(deviceRoute);

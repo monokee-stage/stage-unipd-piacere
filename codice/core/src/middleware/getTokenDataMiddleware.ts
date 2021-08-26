@@ -6,7 +6,7 @@ import { container } from "../ioc_config";
 import { TokenConverter } from "../services/token-converter/token-converter";
 import { TokenData } from "../services/token-converter/tokendata";
 
-// gets the token data of the specified token and saves them in res.locals.tokenData so that thay can be accessed by the following functions
+// gets the token data of the specified token and saves them in res.locals.tokenData so that thay can be accessed by the following routes/middlewares
 export const getTokenDataMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const tokenConverter: TokenConverter = container.get<TokenConverter>(TokenConverter)

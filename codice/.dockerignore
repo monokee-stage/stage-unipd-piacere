@@ -1,0 +1,8 @@
+Dockerfile
+core/.vscode
+core/node_modules
+core/src
+
+repository/.vscode
+repository/node_modules
+core/src

@@ -55,7 +55,9 @@ export class DevicesController {
     public addDevice(user_id: string, device: Device): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
             try {
-                // should check if the device is well formed
+                if (!device || !Device.validateDevice(device)){
+                    return reject(new CodedError('Device format not valid', 400))
+                }
                 const dUuid: string = UUIDGenerator.getUUID();
                 device._id = dUuid;
                 device.user_id = user_id
@@ -82,19 +84,11 @@ export class DevicesController {
     public updateDevice(user_id: string, device_id: string, device: Device): Promise<void> {
         return new Promise<void>(async (resolve, reject) => {
             try {
-                // check that the passed value is actually a device
                 if (!device) {
                     return reject(new CodedError('No data received', 401))
                 }
-                console.log(`update device`)
-                console.log(device)
-                if (Object.keys(device).length !== Object.keys(DeviceFields).length) {
-                    return reject(new CodedError('Number of fields not correct', 401))
-                }
-                for (const field in device) {
-                    if (!Object.keys(DeviceFields).includes(field)) {
-                        return reject(new CodedError('Fields not correct', 401))
-                    }
+                if (!Device.validateDevice(device)) {
+                    return reject(new CodedError('Device format not correct', 400))
                 }
                 // it's important to take the next two values from the request params, and not from the device object found in the body, because those two values are verified in the preceding middlewares
                 device.user_id = user_id
@@ -117,15 +111,8 @@ export class DevicesController {
                 if (!device) {
                     return reject(new CodedError('No data received', 401))
                 }
-                console.log(`edit device`)
-                console.log(device)
-                if (Object.keys(device).length > Object.keys(DeviceFields).length || Object.keys(device).length === 0) {
-                    return reject(new CodedError('Number of fields not correct', 401))
-                }
-                for (const field in device) {
-                    if (!Object.keys(DeviceFields).includes(field)) {
-                        return reject(new CodedError('Fields not correct', 401))
-                    }
+                if (!Device.validatePartialDevice(device)) {
+                    return reject(new CodedError('Device format not correct', 400))
                 }
                 // it's important to take the next two values from the request params because those values are verified in the preceding middlewares
 
@@ -158,7 +145,7 @@ export class DevicesController {
                 // the device is not removed from the database, it's just archived
                 const result = await this.deviceRepo.archiveDevice(device_id, user_id)
                 if(result){
-                    // if a device was archived
+                    // if the device was archived
                     await this.eventRepo.addEvent(event)
 
                     return resolve()

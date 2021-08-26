@@ -18,7 +18,7 @@ export class MongoMetadataRepository implements MetadataRepository {
             if (err) {
                 console.log('Unable to connect to metadata database')
             } else {
-                console.log('Metadata connection succeded')
+                console.log(`Metadata connection succeded to uri ${uri}`)
             }
         })
 

@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { MongoClient, MongoClientOptions } from "mongodb";
-import { BaseRequestFilter } from "../../RequestFilter";
+import { BaseRequestFilter, TypedRequestFilter } from "../../RequestFilter";
 import { applyQueryAndFilter } from "../../utils/applyQueryAndFilter";
 import { Event } from "../model/event";
 import { EventRepository } from "./event.repository";
@@ -21,7 +21,7 @@ export class MongoEventRepository implements EventRepository {
             if (err) {
                 console.log('Unable to connect to events database')
             } else {
-                console.log('Events connection succeded')
+                console.log(`Events connection succeded to uri ${uri}`)
             }
         });
 
@@ -29,7 +29,7 @@ export class MongoEventRepository implements EventRepository {
         this.events = this.database.collection('events');
     }
 
-    getUserEvents(user_id: string, filter?: BaseRequestFilter): Promise<Event[]> {
+    getUserEvents(user_id: string, filter?: TypedRequestFilter): Promise<Event[]> {
         return new Promise<Event[]> (async (resolve, reject) => {
             try {
                 const query = { user_id: user_id }
@@ -40,7 +40,7 @@ export class MongoEventRepository implements EventRepository {
             }
         });
     }
-    getDeviceEvents(device_id: string, user_id: string, filter?: BaseRequestFilter): Promise<Event[]> {
+    getDeviceEvents(device_id: string, user_id: string, filter?: TypedRequestFilter): Promise<Event[]> {
         return new Promise<Event[]> (async (resolve, reject) => {
             try {
                 const query = { device_id: device_id, user_id: user_id }

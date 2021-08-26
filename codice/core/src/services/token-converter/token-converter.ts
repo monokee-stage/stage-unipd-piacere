@@ -30,6 +30,10 @@ export class TokenConverter implements Service{
 					}
 				})
 				if(response && response.data){
+					if(response.data.scope){
+						// todo: set the right separator based on how are scopes written in the introspection API response
+						response.data.scope = response.data.scope.split(',')
+					}
 					return resolve(response.data)
 				}else{
 					return resolve(undefined)

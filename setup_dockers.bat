@@ -1,4 +1,12 @@
-docker build ./mongo_db -t mongo_db
-docker run -p 27017:27017 -d --name mongo_db1 mongo_db
+docker network create -d bridge net1
 
-docker run -p 6379:6379 -d --name redis1 redis
+docker build ./codice -t node_server
+docker run -p 3001:3001 -d --name node_server1 --network=net1 node_server
+
+docker build ./metadata_mongo_db -t metadata_mongo_db
+docker run -d --name metadata_mongo_db1 --network=net1 metadata_mongo_db
+
+docker build ./mongo_db -t mongo_db
+docker run -d --name mongo_db1 --network=net1 mongo_db
+
+docker run -d --name redis1 --network=net1 redis

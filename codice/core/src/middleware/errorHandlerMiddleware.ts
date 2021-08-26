@@ -20,5 +20,5 @@ export const errorHandlerMiddleware = async (err: Error, req: Request, res: Resp
     return res.status(500).json({
         type: 'Internal coded error',
         error: err.stack}
-        ) //.json('Internal error')
+        )
 }

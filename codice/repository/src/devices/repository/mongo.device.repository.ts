@@ -20,11 +20,12 @@ export class MongoDeviceRepository implements DeviceRepository {
             const uri: string = _uri || process.env.MAIN_MONGODB_URI || ''
             const options: MongoClientOptions = _options || JSON.parse(process.env.MAIN_MONGODB_OPTIONS || '{}') || undefined
             this.client = new MongoClient(uri, options);
+            console.log(`Trying devices db connection with uri ${uri}`)
             this.client.connect( (err, client) => {
                 if (err) {
                     console.log('Unable to connect to devices database')
                 } else {
-                    console.log('Devices connection succeded')
+                    console.log(`Devices connection succeded to uri ${uri}`)
                 }
             });
 
@@ -49,22 +50,21 @@ export class MongoDeviceRepository implements DeviceRepository {
     public getDevices(user_id: string, filter?: BaseRequestFilter, showArchived: boolean = false): Promise<Device[]> {
         return new Promise<Device[]> (async (resolve, reject) => {
             try {
-                console.log('repo getDevices received filter')
-                console.log(filter)
                 if(!filter) {
                     filter = new BaseRequestFilter()
                 }
-                if ((filter.getFields().includes('archived') && filter.getFieldsInclusion() === true) 
-                    || (!filter.getFields().includes('archived') && filter.getFieldsInclusion() === false)) {
-                    console.log('before')
-                    console.log(filter)
+                if(filter.getFields().length === 0){
                     filter.setFieldProjection('archived', false)
-                    if(filter.getFields().length === 0) {
+                }else{
+                    if ((filter.getFields().includes('archived') && filter.getFieldsInclusion() === true)
+                        || (!filter.getFields().includes('archived') && filter.getFieldsInclusion() === false)) {
                         filter.setFieldProjection('archived', false)
+                        if (filter.getFields().length === 0) {
+                            filter.setFieldProjection('archived', false)
+                        }
                     }
-                    console.log('after')
-                    console.log(filter)
                 }
+                
                 
 
                 let query: any = { user_id: user_id }
@@ -96,7 +96,7 @@ export class MongoDeviceRepository implements DeviceRepository {
     public editDevice(device_id: string, user_id: string, device: Partial<Device>): Promise<boolean> {
         return new Promise<boolean> (async (resolve, reject) => {
             try {
-                const result: Document|UpdateResult = await controlledMongoUpdateOne(this.devices, { _id: device_id, user_id: user_id }, { $set: device })
+                const result: Document|UpdateResult = await controlledMongoUpdateOne(this.devices, { _id: device_id, user_id: user_id, archived: { $in: [false, null]}}, { $set: device })
                 return resolve(result.matchedCount === 1)
             } catch(err) {
                 return reject(err)
@@ -119,7 +119,7 @@ export class MongoDeviceRepository implements DeviceRepository {
         return new Promise<boolean> (async (resolve, reject) => {
             try {
                 // const result: UpdateResult = await this.devices.updateOne({ _id: device_id, user_id: user_id }, { $set: { archived: true } })
-                const result = await controlledMongoUpdateOne(this.devices, {_id: device_id, user_id: user_id }, { $set: { archived: true } })
+                const result = await controlledMongoUpdateOne(this.devices, { _id: device_id, user_id: user_id, archived: { $in: [false, null] }}, { $set: { archived: true } })
                 return resolve(result.modifiedCount === 1)
             } catch(err) {
                 return reject(err)

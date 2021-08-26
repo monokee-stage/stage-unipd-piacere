@@ -44,8 +44,6 @@ export class DevicesRoute extends Route {
 				return next(new CodedError('User id not provided', 400))
 			}
 			const filter: BaseRequestFilter = requestToFilter(req)
-			console.log('devices routes created filter')
-			console.log(filter)
 			let devs: Device[] = await this.deviceController.getDevices(user_id, filter)
 			res.status(200).json(devs);
 		} catch (err) {

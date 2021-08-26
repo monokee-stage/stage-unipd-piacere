@@ -37,7 +37,9 @@ export const checkClientPermissionMiddleware = async (req: Request, res: Respons
             let admittedClients: string[] = []
             const possible_urls: string[] = Object.keys(permissions)
             possible_urls.forEach((item: string) => {
-                if(currentUrl.match(item)){
+                let match = currentUrl.match(item)
+                // check that item is contained in currentUrl and that the matched part coincides with currentUrl
+                if(match && match.length > 0 && match[0] === currentUrl){
                     admittedClients = permissions[item]
                 }
             })
