@@ -58,6 +58,9 @@ export class DevicesController {
                 if (!device || !Device.validateDevice(device)){
                     return reject(new CodedError('Device format not valid', 400))
                 }
+                if(device.user_id !== user_id) {
+                    return reject(new CodedError('User ids in device and url don\'t correspond', 400))
+                }
                 const dUuid: string = UUIDGenerator.getUUID();
                 device._id = dUuid;
                 device.user_id = user_id
@@ -90,6 +93,9 @@ export class DevicesController {
                 if (!Device.validateDevice(device)) {
                     return reject(new CodedError('Device format not correct', 400))
                 }
+                if(device._id !== device_id || device.user_id !== user_id) {
+                    return reject(new CodedError('User ids or device ids in device and url don\'t correspond', 400))
+                }
                 // it's important to take the next two values from the request params, and not from the device object found in the body, because those two values are verified in the preceding middlewares
                 device.user_id = user_id
                 device._id = device_id
@@ -113,6 +119,10 @@ export class DevicesController {
                 }
                 if (!Device.validatePartialDevice(device)) {
                     return reject(new CodedError('Device format not correct', 400))
+                }
+                if ((device._id !== undefined && device._id !== device_id)
+                    || (device.user_id !== undefined && device.user_id !== user_id)) {
+                    return reject(new CodedError('User ids or device ids in device and url don\'t correspond', 400))
                 }
                 // it's important to take the next two values from the request params because those values are verified in the preceding middlewares
 

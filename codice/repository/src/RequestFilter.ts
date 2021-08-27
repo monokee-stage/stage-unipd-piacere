@@ -15,17 +15,6 @@ export class BaseRequestFilter extends RequestFilter{
         size: number
     }
 
-    /*
-    constructor(filter: {[key: string]: any}) {
-        super()
-        // assign to "this" just the required fields
-        for(const key in filter) {
-            if( Object.keys(BaseRequestFilterFields).includes(key)){
-                this[key] = filter[key]
-            }
-        }
-    }*/
-
     constructor(filter?: { [key: string]: any }) {
         super()
         if(filter) {
